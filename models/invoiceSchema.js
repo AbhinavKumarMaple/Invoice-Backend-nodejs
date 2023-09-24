@@ -12,7 +12,7 @@ const invoiceSchema = new mongoose.Schema({
   totalGross: Number,
   paymentMethod: String, // You can use an enum if you have predefined values
   bankAccount: String,
-  paymentStatus: String, // You can use an enum if you have predefined values
+  paymentStatus: { enum: ["paid", "unpaid"] }, // You can use an enum if you have predefined values
   note: String,
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Assuming user can be either customer or employee
   accountant: { type: mongoose.Schema.Types.ObjectId, ref: "Accountant" },
