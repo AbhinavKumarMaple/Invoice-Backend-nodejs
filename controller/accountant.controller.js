@@ -82,9 +82,9 @@ const loginAccountant = async (req, res) => {
     // Generate a JSON Web Token (JWT) for authentication
     const token = jwt.sign(
       { accountantId: accountant._id },
-      "your-secret-key",
+      process.env.SECRET,
       {
-        expiresIn: "1h", // Token expiration time
+        expiresIn: process.env.TOKENTIME, // Token expiration time
       }
     );
 
@@ -103,6 +103,13 @@ const updateAccountant = async (req, res) => {
   try {
     const accountantId = req.params.id;
     const updateData = req.body;
+
+    // Check if the user wants to update the password
+    if (updateData.password) {
+      // Hash the new password before updating
+      const hashedPassword = await bcrypt.hash(updateData.password, 10);
+      updateData.password = hashedPassword;
+    }
 
     // Update the accountant data based on the provided ID
     const updatedAccountant = await Accountant.findByIdAndUpdate(

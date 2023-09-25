@@ -14,11 +14,9 @@ const createEmployee = async (req, res) => {
     });
 
     if (existingEmployee) {
-      return res
-        .status(400)
-        .json({
-          message: "Employee already exists with this username or email.",
-        });
+      return res.status(400).json({
+        message: "Employee already exists with this username or email.",
+      });
     }
 
     // Hash the password before saving it
@@ -84,6 +82,13 @@ const updateEmployee = async (req, res) => {
   try {
     const employeeId = req.params.id;
     const updateData = req.body;
+
+    // Check if the user wants to update the password
+    if (updateData.password) {
+      // Hash the new password before updating
+      const hashedPassword = await bcrypt.hash(updateData.password, 10);
+      updateData.password = hashedPassword;
+    }
 
     // Update the employee data based on the provided ID
     const updatedEmployee = await Employee.findByIdAndUpdate(
