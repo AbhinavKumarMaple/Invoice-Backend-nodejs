@@ -25,11 +25,9 @@ const createAccountant = async (req, res) => {
     });
 
     if (existingAccountant) {
-      return res
-        .status(400)
-        .json({
-          message: "Accountant already exists with this username or email.",
-        });
+      return res.status(400).json({
+        message: "Accountant already exists with this username or email.",
+      });
     }
 
     // Hash the password before saving it
@@ -90,7 +88,8 @@ const loginAccountant = async (req, res) => {
       }
     );
 
-    res.status(200).json({ token });
+    // res.status(200).json({ token });
+    res.cookie("token", token, { httpOnly: true }).sendStatus(200);
   } catch (error) {
     console.error(error);
     res

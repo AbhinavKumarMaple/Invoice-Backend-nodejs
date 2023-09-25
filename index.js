@@ -12,3 +12,7 @@ app.use(helmet());
 app.use(express.json());
 app.use("/api/product", productRoutes);
 app.use("/api/user", userRoutes);
+
+app.listen(port, () => {
+  console.log("Backend server is running!");
+});
