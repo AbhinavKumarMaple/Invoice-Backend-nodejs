@@ -179,7 +179,7 @@ const updateAccountant = async (req, res) => {
       updateData.password = hashedPassword;
     }
     // Update the accountant data based on the provided ID
-    const updatedAccountant = await Accountant.findByIdAndUpdate(
+    let updatedAccountant = await Accountant.findByIdAndUpdate(
       accountantId,
       updateData,
       { new: true } // Return the updated accountant
@@ -188,7 +188,7 @@ const updateAccountant = async (req, res) => {
     if (!updatedAccountant) {
       return res.status(404).json({ message: "Accountant not found." });
     }
-
+    delete updatedAccountant.password;
     res.status(200).json(updatedAccountant);
   } catch (error) {
     console.error(error);
