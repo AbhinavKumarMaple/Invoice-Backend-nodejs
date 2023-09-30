@@ -29,6 +29,13 @@ router.get(
   accountant.getAccountantById
 );
 
+// Get refresh token
+router.get(
+  "/accountant-refresh-token",
+
+  accountant.refreshToken
+);
+
 // // Get All
 // router.get("/", accountantAuthenticate.verifyToken, getAllAccountants);
 

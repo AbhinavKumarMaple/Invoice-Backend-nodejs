@@ -1,7 +1,50 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Employee = require("../models/employeeSchema");
-const Accountant = require("../models/accountantSchema");
+
+// Route to generate a refresh token for an accountant
+
+const refreshToken = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    // Verify the provided refresh token
+    jwt.verify(refreshToken, process.env.SECRET, async (err, user) => {
+      if (err) {
+        return res.status(403).json({ message: "Invalid refresh token." });
+      }
+
+      // Check if the username in the decoded token matches the provided username
+      if (!user.employeeId) {
+        return res
+          .status(403)
+          .json({ message: "Username mismatch in the token." });
+      }
+      const employeeId = user.employeeId;
+      // Find the accountant based on the username (you may use a unique identifier)
+      const employee = await Employee.findById(employeeId);
+
+      if (!employee) {
+        return res.status(404).json({ message: "Accountant not found." });
+      }
+
+      // Generate a new access token
+      const token = jwt.sign(
+        { employeeId: employee._id, accountantId: employee.accountantId },
+        process.env.SECRET,
+        {
+          expiresIn: process.env.TOKENTIME, // Token expiration time
+        }
+      );
+
+      res.cookie("token", token, { httpOnly: true }).status(200).json("done");
+    });
+  } catch (error) {
+    console.log("error");
+    res
+      .status(500)
+      .json({ message: "Server error. Could not generate refresh token." });
+  }
+};
 
 const createEmployee = async (req, res) => {
   try {
@@ -81,6 +124,24 @@ const loginEmployee = async (req, res) => {
       }
     );
 
+    // Generate a refresh token
+    const refreshToken = jwt.sign(
+      { employeeId: employee._id, accountantId: employee.accountantId },
+      process.env.REFRESH_SECRET, // Use a different secret for refresh tokens
+      {
+        expiresIn: process.env.REFRESH_TOKENTIME, // Refresh token expiration time
+      }
+    );
+
+    // Set the refresh token as an HTTP-only cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      expires: new Date(
+        Date.now() + parseInt(process.env.REFRESH_COOKIE_EXPIRY) * 3600000
+      ), // 3600000 milliseconds in an hour
+    });
+
+    // Send the access token in the response
     res.cookie("token", token, { httpOnly: true }).status(200).json("done");
   } catch (error) {
     console.error(error);

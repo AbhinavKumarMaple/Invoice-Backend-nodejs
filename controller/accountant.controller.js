@@ -2,6 +2,52 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Accountant = require("../models/accountantSchema");
 
+// Route to generate a refresh token for an accountant
+
+const refreshToken = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    // Verify the provided refresh token
+    jwt.verify(refreshToken, process.env.SECRET, async (err, user) => {
+      if (err) {
+        return res.status(403).json({ message: "Invalid refresh token." });
+      }
+
+      // Check if the username in the decoded token matches the provided username
+      if (!user.accountantId) {
+        return res
+          .status(403)
+          .json({ message: "Username mismatch in the token." });
+      }
+      const accountantId = user.accountantId;
+      // Find the accountant based on the username (you may use a unique identifier)
+      const accountant = await Accountant.findById(accountantId);
+
+      if (!accountant) {
+        return res.status(404).json({ message: "Accountant not found." });
+      }
+
+      // Generate a new access token
+      const token = jwt.sign(
+        {
+          // accountantId: accountant.id,
+          isAccountant: true,
+          // Add any other claims or data you need in the access token
+        },
+        process.env.SECRET,
+        { expiresIn: process.env.TOKENTIME } // Set an appropriate expiration time for the access token
+      );
+
+      res.cookie("token", token, { httpOnly: true }).status(200).json("done");
+    });
+  } catch (error) {
+    console.log("error");
+    res
+      .status(500)
+      .json({ message: "Server error. Could not generate refresh token." });
+  }
+};
+
 // Create Accountant
 const createAccountant = async (req, res) => {
   try {
@@ -89,6 +135,28 @@ const loginAccountant = async (req, res) => {
         expiresIn: process.env.TOKENTIME, // Token expiration time
       }
     );
+
+    // Generate a refresh token
+    const refreshToken = jwt.sign(
+      {
+        accountantId: accountant._id,
+        isAccountant: true,
+      },
+      process.env.SECRET, // Use a different secret for refresh tokens
+      {
+        expiresIn: process.env.REFRESH_TOKENTIME, // Refresh token expiration time
+      }
+    );
+
+    // Set the refresh token as an HTTP-only cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      expires: new Date(
+        Date.now() + parseInt(process.env.REFRESH_COOKIE_EXPIRY) * 3600000
+      ), // 3600000 milliseconds in an hour
+    });
+
+    // Send the access token in the response
     res.cookie("token", token, { httpOnly: true }).status(200).json("done");
   } catch (error) {
     console.error(error);
@@ -179,4 +247,5 @@ module.exports = {
   updateAccountant,
   deleteAccountant,
   getAccountantById,
+  refreshToken,
 };

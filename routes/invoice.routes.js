@@ -37,11 +37,17 @@ router.get(
   invoice.getAllInvoicesForAccountant
 );
 
+// Get all employee invoice by ID
+router.get(
+  "/employee/:employeeId",
+  employeeAuthenticate.verifyToken,
+  invoice.getInvoicesByEmployeeId
+);
 // Get Invoice by ID
-// router.get(
-//   "/:invoiceId",
-//   employeeAuthenticate.verifyToken,
-//   invoice.getAllInvoicesByEmployeeId
-// );
+router.get(
+  "/:invoiceId",
+  employeeAuthenticate.verifyToken,
+  invoice.getInvoiceById
+);
 
 module.exports = router;
