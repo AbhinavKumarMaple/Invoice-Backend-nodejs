@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const generatedInvoiceSchema = new mongoose.Schema({
   id: String, // Consider using UUID here
+
   invoiceNumber: Number,
   date: Date,
   dueDate: Date,
@@ -12,8 +13,8 @@ const generatedInvoiceSchema = new mongoose.Schema({
   totalGross: Number,
   bankAccount: String,
   note: String,
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Assuming user can be either customer or employee
-  accountant: { type: mongoose.Schema.Types.ObjectId, ref: "Accountant" },
+  createdBy: { type: String, required: false }, // Assuming user can be either customer or employee
+  accountantId: { type: String, required: false },
   banks: [
     {
       bankName: String,
@@ -28,7 +29,12 @@ const generatedInvoiceSchema = new mongoose.Schema({
     street: String,
     postalCode: String,
   },
-  accountantAddress: [String, String, String, String], // [street name, landmark, building name/number, postal code]
+  accountantAddress: {
+    streetName: String,
+    landMark: String,
+    buildingNumber: String,
+    postalCode: String,
+  }, // [street name, landmark, building name/number, postal code]
   logo: String, // Assuming logo is a string (link to the logo)
   vatRegNo: Number,
   crn: Number,

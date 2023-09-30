@@ -1,36 +1,38 @@
-const ServiceDescription = require("../models/ServiceDescription");
+const ServiceDescription = require("../models/serviceDescriptionSchema");
 
 // Get All Service Descriptions by Employee ID
 const getAllServiceDescriptionsByEmployeeId = async (req, res) => {
   try {
-    const employeeId = req.params.employee_id;
-
+    let employeeId = req.params.employee_id;
+    if (req.user?.isAccountant == true) {
+      employeeId = req.accountantId;
+    }
     // Find all service descriptions associated with the provided employee_id
     const serviceDescriptions = await ServiceDescription.find({ employeeId });
 
     res.status(200).json(serviceDescriptions);
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        message:
-          "Server error. Could not get service descriptions for employee.",
-      });
+    res.status(500).json({
+      message: "Server error. Could not get service descriptions for employee.",
+    });
   }
 };
 
 // Create Service Description
 const createServiceDescription = async (req, res) => {
   try {
-    const { employeeId, description, created, accountant } = req.body;
-
+    const description = req.body;
+    let employeeId = req.user?.employeeId;
+    let accountantId = req.user?.accountantId;
+    if (req.user?.isAccountant == true) {
+      employeeId = req.user?.accountantId;
+    }
     // Create a new service description instance
     const serviceDescription = new ServiceDescription({
       employeeId,
       description,
-      created,
-      accountant,
+      accountantId,
     });
 
     // Save the service description to the database
@@ -52,8 +54,15 @@ const updateServiceDescription = async (req, res) => {
   try {
     const descriptionId = req.params.id;
     const updateData = req.body;
+    let employeeId = req.user?.employeeId;
+    let accountantId = req.user?.accountantId;
+    let isAccountant = req.user?.isAccountant;
 
+    let serviceDescription = await ServiceDescription.findById(descriptionId);
+    if (serviceDescription.employeeId != employeeId)
+      return res.status(404).json({ message: "not auth." });
     // Update the service description data based on the provided ID
+
     const updatedServiceDescription =
       await ServiceDescription.findByIdAndUpdate(
         descriptionId,
@@ -80,6 +89,13 @@ const updateServiceDescription = async (req, res) => {
 const deleteServiceDescription = async (req, res) => {
   try {
     const descriptionId = req.params.id;
+    let employeeId = req.user?.employeeId;
+    let accountantId = req.user?.accountantId;
+    let isAccountant = req.user?.isAccountant;
+
+    let serviceDescription = await ServiceDescription.findById(descriptionId);
+    if (serviceDescription.employeeId != employeeId)
+      return res.status(404).json({ message: "not auth." });
 
     // Delete the service description based on the provided ID
     const deletedServiceDescription =

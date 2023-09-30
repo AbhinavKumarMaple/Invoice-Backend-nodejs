@@ -1,9 +1,12 @@
-const VatRate = require("../models/VatRate");
+const VatRate = require("../models/vatRateSchema");
 
 // Get All VAT Rates by Employee ID
 const getAllVatRatesByEmployeeId = async (req, res) => {
   try {
-    const employeeId = req.params.employee_id;
+    let employeeId = req.params.employee_id;
+    if (req.user?.isAccountant == true) {
+      employeeId = req.accountantId;
+    }
 
     // Find all VAT rates associated with the provided employee_id
     const vatRates = await VatRate.find({ employeeId });
@@ -20,14 +23,18 @@ const getAllVatRatesByEmployeeId = async (req, res) => {
 // Create VAT Rate
 const createVatRate = async (req, res) => {
   try {
-    const { employeeId, vatRate, created, accountant } = req.body;
+    const { vatRate } = req.body;
 
+    let accountantId = req.user?.accountantId;
+    let employeeId = req.user?.employeeId;
+    if (req.user?.isAccountant == true) {
+      employeeId = req.accountantId;
+    }
     // Create a new VAT rate instance
     const newVatRate = new VatRate({
       employeeId,
       vatRate,
-      created,
-      accountant,
+      accountantId,
     });
 
     // Save the VAT rate to the database
@@ -47,6 +54,13 @@ const updateVatRate = async (req, res) => {
   try {
     const vatRateId = req.params.id;
     const updateData = req.body;
+    let employeeId = req.user?.employeeId;
+    let accountantId = req.user?.accountantId;
+    let isAccountant = req.user?.isAccountant;
+
+    let varRate = await VatRate.findById(descriptionId);
+    if (varRate.employeeId != employeeId)
+      return res.status(404).json({ message: "not auth." });
 
     // Update the VAT rate data based on the provided ID
     const updatedVatRate = await VatRate.findByIdAndUpdate(
@@ -72,6 +86,10 @@ const updateVatRate = async (req, res) => {
 const deleteVatRate = async (req, res) => {
   try {
     const vatRateId = req.params.id;
+
+    let varRate = await VatRate.findById(descriptionId);
+    if (varRate.employeeId != employeeId)
+      return res.status(404).json({ message: "not auth." });
 
     // Delete the VAT rate based on the provided ID
     const deletedVatRate = await VatRate.findByIdAndRemove(vatRateId);

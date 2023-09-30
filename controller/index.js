@@ -1,5 +1,6 @@
 module.exports.accountant = require("./accountant.controller");
 module.exports.employee = require("./employee.controller");
+module.exports.customer = require("./customer.controller");
 module.exports.invoice = require("./invoice.controller");
 module.exports.generateInvoice = require("./generateInvoice.controller");
 module.exports.vatRate = require("./VatRate.controller");

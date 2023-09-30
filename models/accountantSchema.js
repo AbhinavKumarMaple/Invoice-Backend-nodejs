@@ -21,9 +21,9 @@ const accountantSchema = new mongoose.Schema({
       sortCode: String,
     },
   ],
-  logo: [String, String], // Assuming logo links are strings
+  logo: [String], // Assuming logo links are strings
   username: { type: String, unique: true },
-  email: { type: String, unique: true },
+  email: { type: String },
   password: String,
 });
 

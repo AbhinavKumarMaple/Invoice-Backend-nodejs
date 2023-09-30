@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
 
 const serviceDescriptionSchema = new mongoose.Schema({
-  id: String, // Consider using UUID here
-  employeeId: Number, // You specified int, but Mongoose uses Number
-  description: String,
+  employeeId: String, // You specified int, but Mongoose uses Number
+  description: { type: String, unique: true },
   created: Date,
-  accountant: { type: mongoose.Schema.Types.ObjectId, ref: "Accountant" },
+  accountantId: String,
 });
 
 module.exports = mongoose.model("ServiceDescription", serviceDescriptionSchema);

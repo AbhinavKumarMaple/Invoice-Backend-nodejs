@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
 
 const vatRateSchema = new mongoose.Schema({
-  id: String, // Consider using UUID here
   employeeId: Number, // You specified int, but Mongoose uses Number
-  vatRate: Number,
+  vatRate: { type: Number, unique: true },
   created: Date,
-  accountant: { type: mongoose.Schema.Types.ObjectId, ref: "Accountant" },
+  accountantId: { type: mongoose.Schema.Types.ObjectId, ref: "Accountant" },
 });
 
 module.exports = mongoose.model("VatRate", vatRateSchema);

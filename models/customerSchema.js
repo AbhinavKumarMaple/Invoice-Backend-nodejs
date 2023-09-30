@@ -1,8 +1,7 @@
 const mongoose = require("mongoose");
 
 const customerSchema = new mongoose.Schema({
-  name: String,
-  id: String, // Consider using UUID here
+  name: { type: String, unique: true },
   contactNumber: Number,
   address: {
     address: String,
@@ -12,14 +11,14 @@ const customerSchema = new mongoose.Schema({
   },
   banks: [
     {
-      bankName: String,
-      accountName: String,
-      accountNumber: String,
-      sortCode: String,
+      bankName: { type: String, required: true },
+      accountName: { type: String, required: true },
+      accountNumber: { type: String, required: true },
+      sortCode: { type: String, required: true },
     },
   ],
-  creator: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" }, // Assuming creator can be either customer or accountant
-  accountant: { type: mongoose.Schema.Types.ObjectId, ref: "Accountant" },
+  creator: String, // Assuming creator can be either customer or accountant
+  accountantId: String,
 });
 
 module.exports = mongoose.model("Customer", customerSchema);

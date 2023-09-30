@@ -1,6 +1,6 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Accountant = require("../models/Accountant");
+const Accountant = require("../models/accountantSchema");
 
 // Create Accountant
 const createAccountant = async (req, res) => {
@@ -64,7 +64,6 @@ const createAccountant = async (req, res) => {
 const loginAccountant = async (req, res) => {
   try {
     const { username, password } = req.body;
-
     // Find the accountant by username
     const accountant = await Accountant.findOne({ username });
 
@@ -81,15 +80,16 @@ const loginAccountant = async (req, res) => {
 
     // Generate a JSON Web Token (JWT) for authentication
     const token = jwt.sign(
-      { accountantId: accountant._id },
+      {
+        accountantId: accountant._id,
+        isAccountant: true,
+      },
       process.env.SECRET,
       {
         expiresIn: process.env.TOKENTIME, // Token expiration time
       }
     );
-
-    // res.status(200).json({ token });
-    res.cookie("token", token, { httpOnly: true }).sendStatus(200);
+    res.cookie("token", token, { httpOnly: true }).status(200).json("done");
   } catch (error) {
     console.error(error);
     res
@@ -101,7 +101,7 @@ const loginAccountant = async (req, res) => {
 // Update Accountant
 const updateAccountant = async (req, res) => {
   try {
-    const accountantId = req.params.id;
+    const accountantId = req.user.accountantId;
     const updateData = req.body;
 
     // Check if the user wants to update the password
@@ -134,7 +134,7 @@ const updateAccountant = async (req, res) => {
 // Delete Accountant
 const deleteAccountant = async (req, res) => {
   try {
-    const accountantId = req.params.id;
+    const accountantId = req.user.accountantId;
 
     // Delete the accountant based on the provided ID
     const deletedAccountant = await Accountant.findByIdAndRemove(accountantId);
@@ -152,9 +152,31 @@ const deleteAccountant = async (req, res) => {
   }
 };
 
+// Get Accountant by ID from Cookie
+const getAccountantById = async (req, res) => {
+  try {
+    const accountantId = req.user.accountantId; // Replace 'accountantId' with the actual cookie name
+
+    // Find the accountant based on the accountant ID from the cookie
+    const accountant = await Accountant.findById(accountantId);
+
+    if (!accountant) {
+      return res.status(404).json({ message: "Accountant not found." });
+    }
+
+    res.status(200).json(accountant);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Server error. Could not get accountant by ID." });
+  }
+};
+
 module.exports = {
   createAccountant,
   loginAccountant,
   updateAccountant,
   deleteAccountant,
+  getAccountantById,
 };

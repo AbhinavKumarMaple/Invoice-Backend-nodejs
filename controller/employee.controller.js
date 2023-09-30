@@ -1,12 +1,21 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Employee = require("../models/Employee");
+const Employee = require("../models/employeeSchema");
+const Accountant = require("../models/accountantSchema");
 
-// Create Employee
 const createEmployee = async (req, res) => {
   try {
-    const { name, contactNumber, username, email, password, accountant } =
+    const { name, contactNumber, username, email, password, accountantId } =
       req.body;
+
+    // Check if the accountant with the specified accountantId exists
+    const existingAccountant = await Accountant.findById(accountantId);
+
+    if (!existingAccountant) {
+      return res.status(400).json({
+        message: "Accountant not found with the provided accountantId.",
+      });
+    }
 
     // Check if the employee with the same username or email already exists
     const existingEmployee = await Employee.findOne({
@@ -29,7 +38,7 @@ const createEmployee = async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      accountant, // Assuming you pass the accountant ID when creating an employee
+      accountantId,
     });
 
     // Save the employee to the database
@@ -64,11 +73,15 @@ const loginEmployee = async (req, res) => {
     }
 
     // Generate a JSON Web Token (JWT) for authentication
-    const token = jwt.sign({ employeeId: employee._id }, "your-secret-key", {
-      expiresIn: "1h", // Token expiration time
-    });
+    const token = jwt.sign(
+      { employeeId: employee._id, accountantId: employee.accountantId },
+      process.env.SECRET,
+      {
+        expiresIn: process.env.TOKENTIME, // Token expiration time
+      }
+    );
 
-    res.status(200).json({ token });
+    res.cookie("token", token, { httpOnly: true }).status(200).json("done");
   } catch (error) {
     console.error(error);
     res
@@ -80,7 +93,7 @@ const loginEmployee = async (req, res) => {
 // Update Employee
 const updateEmployee = async (req, res) => {
   try {
-    const employeeId = req.params.id;
+    const employeeId = req.user.employeeId;
     const updateData = req.body;
 
     // Check if the user wants to update the password
@@ -96,11 +109,10 @@ const updateEmployee = async (req, res) => {
       updateData,
       { new: true } // Return the updated employee
     );
-
     if (!updatedEmployee) {
       return res.status(404).json({ message: "Employee not found." });
     }
-
+    updatedEmployee.accountantId = "";
     res.status(200).json(updatedEmployee);
   } catch (error) {
     console.error(error);
@@ -113,7 +125,7 @@ const updateEmployee = async (req, res) => {
 // Delete Employee
 const deleteEmployee = async (req, res) => {
   try {
-    const employeeId = req.params.id;
+    const employeeId = req.user.employeeId;
 
     // Delete the employee based on the provided ID
     const deletedEmployee = await Employee.findByIdAndRemove(employeeId);
@@ -131,9 +143,54 @@ const deleteEmployee = async (req, res) => {
   }
 };
 
+//get employee by id
+const getEmployeeById = async (req, res) => {
+  try {
+    const _id = req.user.employeeId; // Extract the employee ID from the request params
+
+    // Find the employee by their ID
+    const employee = await Employee.findById(_id);
+
+    // If the employee is not found, return a 404 error
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found." });
+    }
+    employee.password = "";
+    // Send a JSON response with the employee's details
+    res.status(200).json(employee);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error. Could not get employee." });
+  }
+};
+
+const getAllEmployeesByAccountantId = async (req, res) => {
+  try {
+    const { accountantId } = req.user; // Extract accountantId from req.user
+    const page = parseInt(req.query.page) || 1; // Get the page number from query parameters, default to 1 if not provided
+    const limit = parseInt(req.query.limit) || 20; // Get the limit (number of records per page) from query parameters, default to 10 if not provided
+
+    // Calculate the skip value based on the page number and limit
+    const skip = (page - 1) * limit;
+
+    // Find employees that match the accountantId with pagination
+    const employees = await Employee.find({ accountantId: accountantId })
+      .skip(skip) // Skip the specified number of records
+      .limit(limit); // Limit the number of records returned
+
+    // Send a JSON response with the array of employee details
+    res.status(200).json(employees);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error. Could not get employees." });
+  }
+};
+
 module.exports = {
   createEmployee,
   loginEmployee,
   updateEmployee,
   deleteEmployee,
+  getEmployeeById,
+  getAllEmployeesByAccountantId,
 };
