@@ -196,7 +196,7 @@ const getAllInvoicesForAccountant = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Find invoices associated with the provided accountant_id with pagination
-    const invoices = await Invoice.find({ accountantId })
+    const invoices = await Invoice.find({ accountantId: accountantId })
       .skip(skip) // Skip the specified number of records
       .limit(limit); // Limit the number of records returned
 
