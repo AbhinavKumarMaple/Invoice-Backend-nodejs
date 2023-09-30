@@ -254,4 +254,5 @@ module.exports = {
   deleteEmployee,
   getEmployeeById,
   getAllEmployeesByAccountantId,
+  refreshToken,
 };

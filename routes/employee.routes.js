@@ -39,4 +39,11 @@ router.get(
   employee.getAllEmployeesByAccountantId
 );
 
+// Get refresh token
+router.get(
+  "/refresh-token",
+
+  employee.refreshToken
+);
+
 module.exports = router;
