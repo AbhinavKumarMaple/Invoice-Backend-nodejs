@@ -225,8 +225,8 @@ const getAccountantById = async (req, res) => {
     const accountantId = req.user.accountantId; // Replace 'accountantId' with the actual cookie name
 
     // Find the accountant based on the accountant ID from the cookie
-    const accountant = await Accountant.findById(accountantId);
-
+    let accountant = await Accountant.findById(accountantId);
+    accountant.password = "";
     if (!accountant) {
       return res.status(404).json({ message: "Accountant not found." });
     }

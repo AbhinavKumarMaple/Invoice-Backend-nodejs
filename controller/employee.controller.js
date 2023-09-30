@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Employee = require("../models/employeeSchema");
+const Accountant = require("../models/accountantSchema");
 
 // Route to generate a refresh token for an accountant
 
