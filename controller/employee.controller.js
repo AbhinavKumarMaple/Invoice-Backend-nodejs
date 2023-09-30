@@ -128,7 +128,7 @@ const loginEmployee = async (req, res) => {
     // Generate a refresh token
     const refreshToken = jwt.sign(
       { employeeId: employee._id, accountantId: employee.accountantId },
-      process.env.REFRESH_SECRET, // Use a different secret for refresh tokens
+      process.env.SECRET, // Use a different secret for refresh tokens
       {
         expiresIn: process.env.REFRESH_TOKENTIME, // Refresh token expiration time
       }
