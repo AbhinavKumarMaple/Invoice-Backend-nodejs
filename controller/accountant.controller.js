@@ -30,7 +30,7 @@ const refreshToken = async (req, res) => {
       // Generate a new access token
       const token = jwt.sign(
         {
-          accountantId: accountant.id,
+          accountantId: accountant._id,
           isAccountant: true,
           // Add any other claims or data you need in the access token
         },
@@ -178,14 +178,13 @@ const updateAccountant = async (req, res) => {
       const hashedPassword = await bcrypt.hash(updateData.password, 10);
       updateData.password = hashedPassword;
     }
-    console.log(req.user);
     // Update the accountant data based on the provided ID
     const updatedAccountant = await Accountant.findByIdAndUpdate(
       accountantId,
       updateData,
       { new: true } // Return the updated accountant
     );
-    console.log(updatedAccountant);
+
     if (!updatedAccountant) {
       return res.status(404).json({ message: "Accountant not found." });
     }
