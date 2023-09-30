@@ -211,9 +211,9 @@ const addBankToCustomer = async (req, res) => {
 
 const removeBankFromCustomer = async (req, res) => {
   try {
-    const _id = req.params.customerId;
-    const bankId = req.body._id;
-
+    // const _id = req.params.customerId;
+    // const bankId = req.body._id;
+    let (_id,bankid) = req.query
     // Find the customer by ID
     const customer = await Customer.findById(_id);
 
