@@ -7,7 +7,11 @@ const {
 const { employee } = require("../controller");
 
 // Create Accountant
-router.post("/register", employee.createEmployee);
+router.post(
+  "/register",
+  accountantAuthenticate.verifyToken,
+  employee.createEmployee
+);
 
 // login Accountant
 router.post("/login", employee.loginEmployee);

@@ -1,3 +1,4 @@
+const invoiceSchema = require("../models/invoiceSchema");
 const Invoice = require("../models/invoiceSchema");
 
 // Create Invoice (associated with an Employee)
@@ -121,7 +122,7 @@ const updateInvoiceById = async (req, res) => {
 // Get Invoice by ID
 const getInvoiceById = async (req, res) => {
   try {
-    const invoiceId = req.params.invoiceId;
+    const invoiceId = req.params.invoiceid;
     const employeeId = req.user?.employeeId;
     const accountantId = req.user?.accountantId;
     // Find the invoice based on the provided ID
@@ -182,7 +183,7 @@ const getAllInvoicesForAccountant = async (req, res) => {
   try {
     const accountantId = req.user.accountantId;
     const isAccountant = req.user.isAccountant;
-
+    console.log(accountantId);
     if (!isAccountant) {
       return res.status(403).json({
         message: "Unauthorized: You are not allowed to access this resource.",
@@ -212,7 +213,7 @@ const getAllInvoicesForAccountant = async (req, res) => {
 // // Get All Invoices by Employee ID
 const getInvoicesByEmployeeId = async (req, res) => {
   try {
-    const employeeId = req.params.employeeId; // Assuming you pass the employee ID as a parameter
+    const employeeId = req.params.employeeid; // Assuming you pass the employee ID as a parameter
     const page = parseInt(req.query.page) || 1; // Get the page number from query parameters, default to 1 if not provided
     const limit = parseInt(req.query.limit) || 10; // Get the limit (number of records per page) from query parameters, default to 10 if not provided
 
@@ -220,17 +221,17 @@ const getInvoicesByEmployeeId = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Query the database to find invoices associated with the employee with pagination
-    const invoices = await Invoice.find({ createdBy: employeeId })
+    const invoices = await Invoice.find({
+      createdBy: employeeId,
+    })
       .skip(skip) // Skip the specified number of records
       .limit(limit); // Limit the number of records returned
-
+    console.log(invoiceSchema);
     if (
       invoices.some(
         (invoice) =>
-          invoice.createdBy === req.user.employeeId ||
-          invoice.createdBy === req.user.accountantId ||
-          (invoice.accountantId === req.user.accountantId &&
-            req.user.isAccountant === true)
+          invoice.accountantId === req.user?.accountantId &&
+          req.user?.isAccountant === true
       )
     ) {
       res.status(200).json(invoices);

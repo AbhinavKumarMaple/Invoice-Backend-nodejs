@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 
 const accountantSchema = new mongoose.Schema({
   name: String,
-  id: String, // Consider using UUID here
   businessName: String,
   contactNumber: Number,
   address: {

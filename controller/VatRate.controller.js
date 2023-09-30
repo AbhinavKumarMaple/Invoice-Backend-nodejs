@@ -3,14 +3,14 @@ const VatRate = require("../models/vatRateSchema");
 // Get All VAT Rates by Employee ID
 const getAllVatRatesByEmployeeId = async (req, res) => {
   try {
-    let employeeId = req.params.employee_id;
+    let employeeId = req.user.employeeId;
     if (req.user?.isAccountant == true) {
       employeeId = req.accountantId;
     }
-
+    if (!employeeId) return res.status(500).json({ message: "require id" });
     // Find all VAT rates associated with the provided employee_id
-    const vatRates = await VatRate.find({ employeeId });
-
+    const vatRates = await VatRate.find({ employeeId: employeeId });
+    console.log(vatRates);
     res.status(200).json(vatRates);
   } catch (error) {
     console.error(error);
@@ -27,9 +27,23 @@ const createVatRate = async (req, res) => {
 
     let accountantId = req.user?.accountantId;
     let employeeId = req.user?.employeeId;
-    if (req.user?.isAccountant == true) {
+
+    if (req.user?.isAccountant === true) {
       employeeId = req.accountantId;
     }
+
+    // Check if a VAT rate with the same vatRate and employeeId already exists
+    const existingVatRate = await VatRate.findOne({
+      vatRate,
+      employeeId,
+    });
+
+    if (existingVatRate) {
+      return res
+        .status(400)
+        .json({ message: "VAT rate with this rate already exists." });
+    }
+
     // Create a new VAT rate instance
     const newVatRate = new VatRate({
       employeeId,
@@ -57,8 +71,11 @@ const updateVatRate = async (req, res) => {
     let employeeId = req.user?.employeeId;
     let accountantId = req.user?.accountantId;
     let isAccountant = req.user?.isAccountant;
-
-    let varRate = await VatRate.findById(descriptionId);
+    if (isAccountant === true) {
+      employeeId = accountantId;
+    }
+    let varRate = await VatRate.findById(vatRateId);
+    console.log(varRate);
     if (varRate.employeeId != employeeId)
       return res.status(404).json({ message: "not auth." });
 
@@ -86,8 +103,12 @@ const updateVatRate = async (req, res) => {
 const deleteVatRate = async (req, res) => {
   try {
     const vatRateId = req.params.id;
-
-    let varRate = await VatRate.findById(descriptionId);
+    let employeeId = req.user.employeeId;
+    if (req.user?.isAccountant == true) {
+      employeeId = req.user.accountantId;
+    }
+    let varRate = await VatRate.findById(vatRateId);
+    console.log(varRate);
     if (varRate.employeeId != employeeId)
       return res.status(404).json({ message: "not auth." });
 

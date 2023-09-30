@@ -22,16 +22,29 @@ const getAllServiceDescriptionsByEmployeeId = async (req, res) => {
 // Create Service Description
 const createServiceDescription = async (req, res) => {
   try {
-    const description = req.body;
+    const { description } = req.body;
     let employeeId = req.user?.employeeId;
     let accountantId = req.user?.accountantId;
+
     if (req.user?.isAccountant == true) {
       employeeId = req.user?.accountantId;
     }
-    // Create a new service description instance
-    const serviceDescription = new ServiceDescription({
+
+    // Check if a service description with the same description and employeeId already exists
+    const existingServiceDescription = await ServiceDescription.findOne({
       employeeId,
       description,
+    });
+    if (existingServiceDescription) {
+      return res.status(400).json({
+        message: "Service description with this description already exists.",
+      });
+    }
+
+    // Create a new service description instance
+    const serviceDescription = new ServiceDescription({
+      description,
+      employeeId,
       accountantId,
     });
 

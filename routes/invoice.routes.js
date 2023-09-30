@@ -39,13 +39,13 @@ router.get(
 
 // Get all employee invoice by ID
 router.get(
-  "/employee/:employeeId",
-  employeeAuthenticate.verifyToken,
+  "/employee/:employeeid",
+  accountantAuthenticate.verifyToken,
   invoice.getInvoicesByEmployeeId
 );
 // Get Invoice by ID
 router.get(
-  "/:invoiceId",
+  "/:invoiceid",
   employeeAuthenticate.verifyToken,
   invoice.getInvoiceById
 );

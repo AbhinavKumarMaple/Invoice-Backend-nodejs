@@ -49,9 +49,8 @@ const refreshToken = async (req, res) => {
 
 const createEmployee = async (req, res) => {
   try {
-    const { name, contactNumber, username, email, password, accountantId } =
-      req.body;
-
+    const { name, contactNumber, username, email, password } = req.body;
+    const accountantId = req.user.accountantId;
     // Check if the accountant with the specified accountantId exists
     const existingAccountant = await Accountant.findById(accountantId);
 
