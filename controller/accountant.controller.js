@@ -188,7 +188,7 @@ const updateAccountant = async (req, res) => {
     if (!updatedAccountant) {
       return res.status(404).json({ message: "Accountant not found." });
     }
-    delete updatedAccountant.password;
+    updatedAccountant.password = "";
     res.status(200).json(updatedAccountant);
   } catch (error) {
     console.error(error);
