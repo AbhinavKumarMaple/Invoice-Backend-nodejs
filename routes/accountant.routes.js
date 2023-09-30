@@ -31,7 +31,7 @@ router.get(
 
 // Get refresh token
 router.get(
-  "/accountant-refresh-token",
+  "/refresh-token",
 
   accountant.refreshToken
 );
