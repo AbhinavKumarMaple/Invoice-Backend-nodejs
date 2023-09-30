@@ -213,7 +213,7 @@ const removeBankFromCustomer = async (req, res) => {
   try {
     // const _id = req.params.customerId;
     // const bankId = req.body._id;
-    let (_id,bankid) = req.query
+    let {_id,bankid} = req.query
     // Find the customer by ID
     const customer = await Customer.findById(_id);
 
@@ -223,7 +223,7 @@ const removeBankFromCustomer = async (req, res) => {
 
     // Find the index of the bank to remove
     const bankIndex = customer.banks.findIndex(
-      (bank) => bank._id.toString() === bankId
+      (bank) => bank._id.toString() === bankid
     );
 
     if (bankIndex === -1) {
@@ -249,8 +249,7 @@ const removeBankFromCustomer = async (req, res) => {
 
 const editBankForCustomer = async (req, res) => {
   try {
-    const _id = req.query.customerid;
-    const bankid = req.query.bankid;
+    let (_id,bankid) = req.query
     const updatedBank = req.body;
 
     // Find the customer by ID

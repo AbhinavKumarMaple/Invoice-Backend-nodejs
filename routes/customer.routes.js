@@ -29,7 +29,7 @@ router.put(
 
 // Update Customer
 router.delete(
-  "/remove-bank/:customerId",
+  "/remove-bank/",
   accountantAuthenticate.verifyToken,
   customer.removeBankFromCustomer
 );
