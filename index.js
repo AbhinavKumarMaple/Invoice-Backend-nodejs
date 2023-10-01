@@ -44,7 +44,7 @@ app.use("/api/invoice", invoiceRoutes);
 app.use("/api/generatedinvoice", generatedInvoiceRoutes);
 app.use("/api/servicedesc", serviceDesc);
 app.use("/api/vatrate", varRate);
-app.get("/", (req, res) => {
+app.use("/", (req, res) => {
   res.send("Hey this is my API running 🥳");
 });
 app.listen(port, () => {
