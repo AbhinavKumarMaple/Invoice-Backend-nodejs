@@ -50,3 +50,6 @@ app.use("/", (req, res) => {
 app.listen(port, () => {
   console.log("Backend server is running!");
 });
+
+// Export the Express API
+module.exports = app;
