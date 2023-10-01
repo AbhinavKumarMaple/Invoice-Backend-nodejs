@@ -44,8 +44,8 @@ app.use("/api/invoice", invoiceRoutes);
 app.use("/api/generatedinvoice", generatedInvoiceRoutes);
 app.use("/api/servicedesc", serviceDesc);
 app.use("/api/vatrate", varRate);
-app.get("/about", (req, res) => {
-  res.send("This is my about route..... ");
+app.get("/", (req, res) => {
+  res.send("Hey this is my API running 🥳");
 });
 app.listen(port, () => {
   console.log("Backend server is running!");
