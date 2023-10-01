@@ -240,6 +240,107 @@ const getAccountantById = async (req, res) => {
   }
 };
 
+const addBankToAccountant = async (req, res) => {
+  try {
+    const { bankName, accountName, accountNumber, sortCode } = req.body;
+    const accountantId = req.user.accountantId; // Replace with the correct way to get the accountant ID
+
+    // Create a new bank object
+    const newBank = {
+      bankName,
+      accountName,
+      accountNumber,
+      sortCode,
+    };
+
+    // Find the accountant based on the accountant ID
+    const accountant = await Accountant.findById(accountantId);
+
+    if (!accountant) {
+      return res.status(404).json({ message: "Accountant not found." });
+    }
+
+    // Add the new bank to the accountant's list of banks
+    accountant.banks.push(newBank);
+
+    // Save the accountant with the updated bank list
+    await accountant.save();
+
+    res.status(201).json({ message: "Bank added successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error. Could not add bank." });
+  }
+};
+
+const removeBankByIdFromAccountant = async (req, res) => {
+  try {
+    const bankId = req.params.bankId;
+    const accountantId = req.user.accountantId; // Replace with the correct way to get the accountant ID
+
+    // Find the accountant based on the accountant ID
+    const accountant = await Accountant.findById(accountantId);
+
+    if (!accountant) {
+      return res.status(404).json({ message: "Accountant not found." });
+    }
+
+    // Find the index of the bank to be removed
+    const bankIndex = accountant.banks.findIndex((bank) => bank._id == bankId);
+
+    if (bankIndex === -1) {
+      return res.status(404).json({ message: "Bank not found." });
+    }
+
+    // Remove the bank from the accountant's list of banks
+    accountant.banks.splice(bankIndex, 1);
+
+    // Save the accountant with the updated bank list
+    await accountant.save();
+
+    res.status(200).json({ message: "Bank removed successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error. Could not remove bank." });
+  }
+};
+
+const editBankByIdForAccountant = async (req, res) => {
+  try {
+    const bankId = req.params.bankId;
+    const { bankName, accountName, accountNumber, sortCode } = req.body;
+    const accountantId = req.user.accountantId; // Replace with the correct way to get the accountant ID
+
+    // Find the accountant based on the accountant ID
+    const accountant = await Accountant.findById(accountantId);
+
+    if (!accountant) {
+      return res.status(404).json({ message: "Accountant not found." });
+    }
+
+    // Find the bank to be edited
+    const bankToEdit = accountant.banks.find((bank) => bank._id == bankId);
+
+    if (!bankToEdit) {
+      return res.status(404).json({ message: "Bank not found." });
+    }
+
+    // Update the bank details
+    bankToEdit.bankName = bankName;
+    bankToEdit.accountName = accountName;
+    bankToEdit.accountNumber = accountNumber;
+    bankToEdit.sortCode = sortCode;
+
+    // Save the accountant with the updated bank list
+    await accountant.save();
+
+    res.status(200).json({ message: "Bank updated successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error. Could not edit bank." });
+  }
+};
+
 module.exports = {
   createAccountant,
   loginAccountant,
@@ -247,4 +348,7 @@ module.exports = {
   deleteAccountant,
   getAccountantById,
   refreshToken,
+  addBankToAccountant,
+  removeBankByIdFromAccountant,
+  editBankByIdForAccountant,
 };

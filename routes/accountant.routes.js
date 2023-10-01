@@ -36,6 +36,27 @@ router.get(
   accountant.refreshToken
 );
 
+// Get refresh token
+router.post(
+  "/addbank",
+  accountantAuthenticate.verifyToken,
+  accountant.addBankToAccountant
+);
+
+// Get refresh token
+router.delete(
+  "/removebank/:bankId",
+  accountantAuthenticate.verifyToken,
+  accountant.removeBankByIdFromAccountant
+);
+
+// Get refresh token
+router.put(
+  "/editbank/:bankId",
+  accountantAuthenticate.verifyToken,
+  accountant.editBankByIdForAccountant
+);
+
 // // Get All
 // router.get("/", accountantAuthenticate.verifyToken, getAllAccountants);
 

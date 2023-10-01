@@ -288,6 +288,9 @@ const editBankForCustomer = async (req, res) => {
   }
 };
 
+
+
+
 module.exports = {
   createCustomer,
   updateCustomer,
@@ -297,4 +300,5 @@ module.exports = {
   addBankToCustomer,
   removeBankFromCustomer,
   editBankForCustomer,
+
 };
