@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Accountant = require("../models/accountantSchema");
+const Employee = require("../models/employeeSchema");
 
 // Route to generate a refresh token for an accountant
 
@@ -341,6 +342,41 @@ const editBankByIdForAccountant = async (req, res) => {
   }
 };
 
+const generateInviteLink = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // Check if an employee with the given username and hashed password exists
+    const employee = await Employee.findOne({ username, password });
+
+    if (!employee) {
+      return res
+        .status(404)
+        .json({ message: "Employee not found with provided credentials." });
+    }
+
+    // Generate a JWT token with a 1-hour expiration based on username and hashed password
+    const token = jwt.sign(
+      { username, password }, // Include the username and hashed password
+      process.env.SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Create the invite link using the generated token
+    const inviteLink = `${process.env.DOMAIN}/api/employee/invite/${token}`;
+
+    // Respond with the invite link
+    res
+      .status(201)
+      .json({ message: "Invite link generated successfully.", inviteLink });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Server error. Could not generate invite link." });
+  }
+};
+
 module.exports = {
   createAccountant,
   loginAccountant,
@@ -351,4 +387,5 @@ module.exports = {
   addBankToAccountant,
   removeBankByIdFromAccountant,
   editBankByIdForAccountant,
+  generateInviteLink,
 };

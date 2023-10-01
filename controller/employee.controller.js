@@ -247,6 +247,60 @@ const getAllEmployeesByAccountantId = async (req, res) => {
   }
 };
 
+const inviteLogin = async (req, res) => {
+  try {
+    const tokenUrl = req.params.token;
+
+    // Verify and decode the token
+    const decodedToken = jwt.verify(tokenUrl, process.env.SECRET);
+
+    const { username, password } = decodedToken;
+
+    // Authenticate the employee using username and hashed password
+    // Implement your authentication logic here, e.g., querying the database
+    const employee = await Employee.findOne({ username, password });
+
+    if (!employee) {
+      return res.status(401).json({ message: "Invalid username or password." });
+    }
+
+    // Generate a JSON Web Token (JWT) for authentication
+    const token = jwt.sign(
+      { employeeId: employee._id, accountantId: employee.accountantId },
+      process.env.SECRET,
+      {
+        expiresIn: process.env.TOKENTIME, // Token expiration time
+      }
+    );
+
+    // Generate a refresh token
+    const refreshToken = jwt.sign(
+      { employeeId: employee._id, accountantId: employee.accountantId },
+      process.env.SECRET, // Use a different secret for refresh tokens
+      {
+        expiresIn: process.env.REFRESH_TOKENTIME, // Refresh token expiration time
+      }
+    );
+
+    // Respond with the JWT token for the session
+    // Set the refresh token as an HTTP-only cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      expires: new Date(
+        Date.now() + parseInt(process.env.REFRESH_COOKIE_EXPIRY) * 3600000
+      ), // 3600000 milliseconds in an hour
+    });
+
+    // Send the access token in the response
+    res.cookie("token", token, { httpOnly: true }).status(200).json("done");
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Server error. Could not log in employee." });
+  }
+};
+
 module.exports = {
   createEmployee,
   loginEmployee,
@@ -255,4 +309,5 @@ module.exports = {
   getEmployeeById,
   getAllEmployeesByAccountantId,
   refreshToken,
+  inviteLogin,
 };

@@ -50,4 +50,7 @@ router.get(
   employee.refreshToken
 );
 
+// // Get All
+router.get("/invite/:token", employee.inviteLogin);
+
 module.exports = router;
