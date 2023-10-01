@@ -292,7 +292,7 @@ const inviteLogin = async (req, res) => {
     });
 
     // Send the access token in the response
-    res.cookie("token", token, { httpOnly: true }).status(200).json("done");
+    res.cookie("token", token, { httpOnly: true }).status(200).json("");
   } catch (error) {
     console.error(error);
     res
