@@ -57,6 +57,13 @@ router.put(
   accountant.editBankByIdForAccountant
 );
 
+// get invite link
+router.post(
+  "/invite",
+  accountantAuthenticate.verifyToken,
+  accountant.generateInviteLink
+);
+
 // // Get All
 // router.get("/", accountantAuthenticate.verifyToken, getAllAccountants);
 
