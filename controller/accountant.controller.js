@@ -39,10 +39,7 @@ const refreshToken = async (req, res) => {
         { expiresIn: process.env.TOKENTIME } // Set an appropriate expiration time for the access token
       );
 
-      res
-        .cookie("token", token, { httpOnly: true, sameSite: "none" })
-        .status(200)
-        .json("done");
+      res.cookie("token", token, { httpOnly: true }).status(200).json("done");
     });
   } catch (error) {
     console.log("error");
@@ -155,17 +152,13 @@ const loginAccountant = async (req, res) => {
     // Set the refresh token as an HTTP-only cookie
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      sameSite: "none",
       expires: new Date(
         Date.now() + parseInt(process.env.REFRESH_COOKIE_EXPIRY) * 3600000
       ), // 3600000 milliseconds in an hour
     });
 
     // Send the access token in the response
-    res
-      .cookie("token", token, { httpOnly: true, sameSite: "none" })
-      .status(200)
-      .json("done");
+    res.cookie("token", token, { httpOnly: true }).status(200).json("done");
   } catch (error) {
     console.error(error);
     res
