@@ -136,6 +136,7 @@ const loginEmployee = async (req, res) => {
     // Set the refresh token as an HTTP-only cookie
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
+
       expires: new Date(
         Date.now() + parseInt(process.env.REFRESH_COOKIE_EXPIRY) * 3600000
       ), // 3600000 milliseconds in an hour
