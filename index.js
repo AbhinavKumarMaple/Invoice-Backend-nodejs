@@ -36,7 +36,7 @@ connectToMongoDB();
 
 app.use(
   cors({
-    origin: "http:localhost:4200",
+    origin: "http:localhost:4200/",
   })
 );
 
