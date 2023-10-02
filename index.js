@@ -34,7 +34,11 @@ const connectToMongoDB = async () => {
 // Call the connectToMongoDB function to establish the MongoDB connection
 connectToMongoDB();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost",
+  })
+);
 
 app.use(express.json());
 app.use("/api/accountant", accountantRoutes);
