@@ -1,10 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const { accountantAuthenticate } = require("../middleware"); // Replace with your authentication middleware
+const {
+  accountantAuthenticate,
+  employeeAuthenticate,
+} = require("../middleware"); // Replace with your authentication middleware
 const { accountant } = require("../controller");
+const multer = require("multer");
 
 // Create Accountant
-router.post("/register", accountant.createAccountant);
+router.post(
+  "/register",
+  multer({ storage: multer.memoryStorage() }).single("file"),
+  accountant.createAccountant
+);
 
 // login Accountant
 router.post("/login", accountant.loginAccountant);
@@ -25,7 +33,7 @@ router.delete(
 // Get Accountant by ID
 router.get(
   "/myinfo",
-  accountantAuthenticate.verifyToken,
+  employeeAuthenticate.verifyToken,
   accountant.getAccountantById
 );
 

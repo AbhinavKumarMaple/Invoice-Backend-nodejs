@@ -56,7 +56,7 @@ const refreshToken = async (req, res) => {
   }
 };
 
-// Create Accountant
+// Create Accountant function (your existing code)
 const createAccountant = async (req, res) => {
   try {
     const {
@@ -67,11 +67,11 @@ const createAccountant = async (req, res) => {
       vatNumber,
       crnNumber,
       banks,
-      logo,
       username,
       email,
       password,
-    } = req.body;
+      logo,
+    } = req.body; // Use req.body to access JSON data
 
     // Check if the accountant with the same username or email already exists
     const existingAccountant = await Accountant.findOne({
@@ -87,25 +87,27 @@ const createAccountant = async (req, res) => {
     // Hash the password before saving it
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new accountant instance
-    const accountant = new Accountant({
-      name,
-      businessName,
-      contactNumber,
-      address,
-      vatNumber,
-      crnNumber,
-      banks,
-      logo,
-      username,
-      email,
-      password: hashedPassword,
+    uploadStream.on("finish", async () => {
+      // Create a new accountant instance
+      const accountant = new Accountant({
+        name,
+        businessName,
+        contactNumber,
+        address,
+        vatNumber,
+        crnNumber,
+        banks,
+        logo,
+        username,
+        email,
+        password: hashedPassword,
+      });
+
+      // Save the accountant to the database
+      await accountant.save();
+
+      res.status(201).json({ message: "Accountant created successfully." });
     });
-
-    // Save the accountant to the database
-    await accountant.save();
-
-    res.status(201).json({ message: "Accountant created successfully." });
   } catch (error) {
     console.error(error);
     res
