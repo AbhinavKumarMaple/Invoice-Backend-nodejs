@@ -87,27 +87,25 @@ const createAccountant = async (req, res) => {
     // Hash the password before saving it
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    uploadStream.on("finish", async () => {
-      // Create a new accountant instance
-      const accountant = new Accountant({
-        name,
-        businessName,
-        contactNumber,
-        address,
-        vatNumber,
-        crnNumber,
-        banks,
-        logo,
-        username,
-        email,
-        password: hashedPassword,
-      });
-
-      // Save the accountant to the database
-      await accountant.save();
-
-      res.status(201).json({ message: "Accountant created successfully." });
+    // Create a new accountant instance
+    const accountant = new Accountant({
+      name,
+      businessName,
+      contactNumber,
+      address,
+      vatNumber,
+      crnNumber,
+      banks,
+      logo,
+      username,
+      email,
+      password: hashedPassword,
     });
+
+    // Save the accountant to the database
+    await accountant.save();
+
+    res.status(201).json({ message: "Accountant created successfully." });
   } catch (error) {
     console.error(error);
     res
