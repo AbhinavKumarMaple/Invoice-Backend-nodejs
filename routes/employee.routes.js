@@ -53,4 +53,13 @@ router.get(
 // // Get All
 router.get("/invite/:token", employee.inviteLogin);
 
+// // login invite
+router.get("/invite/:token", employee.inviteLogin);
+
+router.get(
+  "/bank",
+  employeeAuthenticate.verifyToken,
+  employee.getAllBanksForAccountant
+);
+
 module.exports = router;

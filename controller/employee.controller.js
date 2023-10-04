@@ -327,6 +327,30 @@ const inviteLogin = async (req, res) => {
   }
 };
 
+// Function to get all bank information objects for an accountant
+const getAllBanksForAccountant = async (req, res) => {
+  try {
+    const { accountantId } = req.user;
+
+    // Find the accountant based on the accountant ID
+    const accountant = await Accountant.findById(accountantId);
+
+    if (!accountant) {
+      return res.status(404).json({ message: "Accountant not found." });
+    }
+
+    // Extract the banks array from the accountant object
+    const banks = accountant.banks || [];
+
+    res.status(200).json({ banks });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Server error. Could not get bank information." });
+  }
+};
+
 module.exports = {
   createEmployee,
   loginEmployee,
@@ -336,4 +360,5 @@ module.exports = {
   getAllEmployeesByAccountantId,
   refreshToken,
   inviteLogin,
+  getAllBanksForAccountant,
 };
