@@ -36,6 +36,7 @@ connectToMongoDB();
 
 app.use(
   cors({
+    origin: "https://invoice-frontend-tan.vercel.app",
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
