@@ -49,7 +49,7 @@ const refreshToken = async (req, res) => {
         .json("done");
     });
   } catch (error) {
-    console.log("error");
+    console.log(error);
     res
       .status(500)
       .json({ message: "Server error. Could not generate refresh token." });
