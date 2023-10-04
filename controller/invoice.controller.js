@@ -1,3 +1,5 @@
+const { employee } = require(".");
+const Employee = require("../models/employeeSchema");
 const invoiceSchema = require("../models/invoiceSchema");
 const Invoice = require("../models/invoiceSchema");
 
@@ -8,6 +10,7 @@ const createInvoice = async (req, res) => {
   if (!createdBy) {
     createdBy = accountantId;
   }
+  const employeeName = await Employee.findById(req.user?.employeeId);
   try {
     const {
       invoiceNumber,
@@ -40,6 +43,7 @@ const createInvoice = async (req, res) => {
       note,
       createdBy,
       accountantId,
+      employeeName,
     });
 
     // Save the invoice to the database
