@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
 const invoiceSchema = new mongoose.Schema({
-  id: String, // Consider using UUID here
   invoiceNumber: Number,
   date: Date,
   customerName: String,
@@ -16,6 +15,7 @@ const invoiceSchema = new mongoose.Schema({
   note: String,
   createdBy: { type: String, ref: "User", require: true }, // Assuming user can be either customer or employee
   accountantId: { type: String, ref: "Accountant", require: true },
+  employeeName: String,
 });
 
 module.exports = mongoose.model("Invoice", invoiceSchema);
