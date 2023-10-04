@@ -35,10 +35,10 @@ const generatedInvoiceSchema = new mongoose.Schema({
     buildingNumber: String,
     postalCode: String,
   }, // [street name, landmark, building name/number, postal code]
-  logo: String, // Assuming logo is a string (link to the logo)
+  logo: String, // Store the image as binary data
   vatRegNo: Number,
   crn: Number,
-  customerName: String, // You've mentioned 'customer name' twice; you may want to remove one of them.
+  customerName: String,
 });
 
 module.exports = mongoose.model("GeneratedInvoice", generatedInvoiceSchema);

@@ -300,5 +300,4 @@ module.exports = {
   addBankToCustomer,
   removeBankFromCustomer,
   editBankForCustomer,
-
 };
