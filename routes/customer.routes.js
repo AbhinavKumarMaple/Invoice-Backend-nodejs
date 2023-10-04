@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { employeeAuthenticate, employeeAuthenticate } = require("../middleware"); // Replace with your authentication middleware
-const { customer } = require("../controller"); // Replace with your customer controller
+const { employeeAuthenticate } = require("../middleware");
+const { customer } = require("../controller");
 
 // Create Customer
 router.post(
