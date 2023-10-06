@@ -25,6 +25,8 @@ const createInvoice = async (req, res) => {
       note,
     } = req.body;
 
+    const parsedDate = new Date(date);
+
     const lastInvoiceNumber = await Invoice.findOne({
       createdBy: createdBy, // Replace 'createdByID' with the actual ID you want to search for
     }).sort({ invoiceNumber: -1 });
@@ -37,7 +39,7 @@ const createInvoice = async (req, res) => {
     // Create a new invoice instance
     const invoice = new Invoice({
       invoiceNumber,
-      date,
+      date: parsedDate,
       customerName,
       serviceDescription,
       netAmount,
@@ -49,7 +51,7 @@ const createInvoice = async (req, res) => {
       note,
       createdBy,
       accountantId,
-      employeeName,
+      employeeName: employeeName.username,
     });
 
     // Save the invoice to the database
@@ -175,15 +177,19 @@ const getAllInvoicesForEmployee = async (req, res) => {
     // Calculate the skip value based on the page number and limit
     const skip = (page - 1) * limit;
 
-    // Determine the date to filter by (default to today's date if not provided)
-    const queryDate = req.body.date ? new Date(req.body.date) : new Date();
-    // Calculate the end of the day for the query date
-    queryDate.setHours(23, 59, 59, 999);
+    // Determine the start and end dates to filter by (default to today's date if not provided)
+    const startDate = req.body.startDate
+      ? new Date(req.body.startDate)
+      : new Date();
+    const endDate = req.body.endDate ? new Date(req.body.endDate) : new Date();
 
-    // Find invoices associated with the provided employee_id, filtered by date, with pagination
+    // Calculate the end of the day for the end date
+    endDate.setHours(23, 59, 59, 999);
+
+    // Find invoices associated with the provided employee_id, filtered by date range, with pagination
     const invoices = await Invoice.find({
       createdBy: employeeId,
-      date: { $gte: queryDate, $lte: new Date() }, // Filter invoices for the specified date
+      date: { $gte: startDate, $lte: endDate }, // Filter invoices within the specified date range
     })
       .skip(skip) // Skip the specified number of records
       .limit(limit); // Limit the number of records returned
@@ -212,14 +218,24 @@ const getAllInvoicesForAccountant = async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
-    // Retrieve the date from the request body or default to today's date
-    const { date } = req.body;
-    const currentDate = date || new Date().toISOString().split("T")[0]; // Default to today's date
+    // Retrieve the date range from the request body or default to today's date
+    const { startDate, endDate } = req.body;
+    let queryDate = {};
 
-    // Find invoices associated with the provided accountant_id and date with pagination
+    // Set up the date filter based on the provided date range or today's date
+    if (startDate && endDate) {
+      queryDate = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      };
+    } else {
+      queryDate = new Date().toISOString().split("T")[0]; // Default to today's date
+    }
+
+    // Find invoices associated with the provided accountant_id and date range with pagination
     const invoices = await Invoice.find({
       accountantId: accountantId,
-      date: currentDate, // Filter by the specified date
+      date: queryDate, // Filter by the specified date or date range
     })
       .skip(skip)
       .limit(limit);
@@ -242,14 +258,24 @@ const getInvoicesByEmployeeId = async (req, res) => {
     // Calculate the skip value based on the page number and limit
     const skip = (page - 1) * limit;
 
-    // Retrieve the date from the request body or default to today's date
-    const { date } = req.body;
-    const currentDate = date || new Date().toISOString().split("T")[0]; // Default to today's date
+    // Retrieve the date range from the request body or default to today's date
+    const { startDate, endDate } = req.body;
+    let queryDate = {};
 
-    // Query the database to find invoices associated with the employee, date, and pagination
+    // Set up the date filter based on the provided date range or today's date
+    if (startDate && endDate) {
+      queryDate = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      };
+    } else {
+      queryDate = new Date().toISOString().split("T")[0]; // Default to today's date
+    }
+
+    // Query the database to find invoices associated with the employee, date range, and pagination
     const invoices = await Invoice.find({
       createdBy: employeeId,
-      date: currentDate, // Filter by the specified date
+      date: queryDate, // Filter by the specified date range or date
     })
       .skip(skip) // Skip the specified number of records
       .limit(limit); // Limit the number of records returned
