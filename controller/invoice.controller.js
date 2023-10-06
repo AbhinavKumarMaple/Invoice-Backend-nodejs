@@ -175,8 +175,16 @@ const getAllInvoicesForEmployee = async (req, res) => {
     // Calculate the skip value based on the page number and limit
     const skip = (page - 1) * limit;
 
-    // Find invoices associated with the provided employee_id with pagination
-    const invoices = await Invoice.find({ createdBy: employeeId })
+    // Determine the date to filter by (default to today's date if not provided)
+    const queryDate = req.body.date ? new Date(req.body.date) : new Date();
+    // Calculate the end of the day for the query date
+    queryDate.setHours(23, 59, 59, 999);
+
+    // Find invoices associated with the provided employee_id, filtered by date, with pagination
+    const invoices = await Invoice.find({
+      createdBy: employeeId,
+      date: { $gte: queryDate, $lte: new Date() }, // Filter invoices for the specified date
+    })
       .skip(skip) // Skip the specified number of records
       .limit(limit); // Limit the number of records returned
 
@@ -193,23 +201,28 @@ const getAllInvoicesForAccountant = async (req, res) => {
   try {
     const accountantId = req.user.accountantId;
     const isAccountant = req.user.isAccountant;
-    console.log(accountantId);
+
     if (!isAccountant) {
       return res.status(403).json({
         message: "Unauthorized: You are not allowed to access this resource.",
       });
     }
 
-    const page = parseInt(req.query.page) || 1; // Get the page number from query parameters, default to 1 if not provided
-    const limit = parseInt(req.query.limit) || 20; // Get the limit (number of records per page) from query parameters, default to 10 if not provided
-
-    // Calculate the skip value based on the page number and limit
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
-    // Find invoices associated with the provided accountant_id with pagination
-    const invoices = await Invoice.find({ accountantId: accountantId })
-      .skip(skip) // Skip the specified number of records
-      .limit(limit); // Limit the number of records returned
+    // Retrieve the date from the request body or default to today's date
+    const { date } = req.body;
+    const currentDate = date || new Date().toISOString().split("T")[0]; // Default to today's date
+
+    // Find invoices associated with the provided accountant_id and date with pagination
+    const invoices = await Invoice.find({
+      accountantId: accountantId,
+      date: currentDate, // Filter by the specified date
+    })
+      .skip(skip)
+      .limit(limit);
 
     res.status(200).json(invoices);
   } catch (error) {
@@ -220,7 +233,6 @@ const getAllInvoicesForAccountant = async (req, res) => {
   }
 };
 
-// // Get All Invoices by Employee ID
 const getInvoicesByEmployeeId = async (req, res) => {
   try {
     const employeeId = req.params.employeeid; // Assuming you pass the employee ID as a parameter
@@ -230,13 +242,18 @@ const getInvoicesByEmployeeId = async (req, res) => {
     // Calculate the skip value based on the page number and limit
     const skip = (page - 1) * limit;
 
-    // Query the database to find invoices associated with the employee with pagination
+    // Retrieve the date from the request body or default to today's date
+    const { date } = req.body;
+    const currentDate = date || new Date().toISOString().split("T")[0]; // Default to today's date
+
+    // Query the database to find invoices associated with the employee, date, and pagination
     const invoices = await Invoice.find({
       createdBy: employeeId,
+      date: currentDate, // Filter by the specified date
     })
       .skip(skip) // Skip the specified number of records
       .limit(limit); // Limit the number of records returned
-    console.log(invoiceSchema);
+
     if (
       invoices.some(
         (invoice) =>
