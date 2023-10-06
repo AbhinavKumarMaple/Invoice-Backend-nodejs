@@ -360,10 +360,10 @@ const editBankByIdForAccountant = async (req, res) => {
 
 const generateInviteLink = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { email } = req.body;
 
     // Check if an employee with the given username and hashed password exists
-    const employee = await Employee.findOne({ username, password });
+    const employee = await Employee.findOne({ email });
 
     if (!employee) {
       return res
@@ -373,13 +373,13 @@ const generateInviteLink = async (req, res) => {
 
     // Generate a JWT token with a 1-hour expiration based on username and hashed password
     const token = jwt.sign(
-      { username, password }, // Include the username and hashed password
+      { email }, // Include the username and hashed password
       process.env.SECRET,
       { expiresIn: "1h" }
     );
 
     // Create the invite link using the generated token
-    const inviteLink = `${process.env.DOMAIN}/api/employee/invite/${token}`;
+    const inviteLink = `${process.env.WEBSITEDOMAIN}/login?token=${token}`;
 
     // Respond with the invite link
     res

@@ -1,9 +1,6 @@
 const mongoose = require("mongoose");
 
 const employeeSchema = new mongoose.Schema({
-  
-  
-  name: String,
   accountantId: String,
   businessName: String,
   contactNumber: Number,
@@ -23,9 +20,9 @@ const employeeSchema = new mongoose.Schema({
       sortCode: String,
     },
   ],
-  logo: {type:String}, // Assuming logo links are strings
-  username: { type: String, unique: true },
-  email: { type: String, unique:true },
+  logo: { type: String }, // Assuming logo links are strings
+  username: { type: String },
+  email: { type: String, unique: true },
   password: String,
 });
 

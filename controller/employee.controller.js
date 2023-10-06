@@ -56,7 +56,18 @@ const refreshToken = async (req, res) => {
 
 const createEmployee = async (req, res) => {
   try {
-    const { name, contactNumber, username, email, password } = req.body;
+    const {
+      contactNumber,
+      username,
+      email,
+      password,
+      businessName,
+      address,
+      vatNumber,
+      crnNumber,
+      banks,
+      logo,
+    } = req.body;
     const accountantId = req.user.accountantId;
     // Check if the accountant with the specified accountantId exists
     const existingAccountant = await Accountant.findById(accountantId);
@@ -83,12 +94,17 @@ const createEmployee = async (req, res) => {
 
     // Create a new employee instance
     const employee = new Employee({
-      name,
+      accountantId,
+      businessName,
       contactNumber,
+      address,
+      vatNumber,
+      crnNumber,
+      banks,
+      logo,
       username,
       email,
       password: hashedPassword,
-      accountantId,
     });
 
     // Save the employee to the database
@@ -106,59 +122,119 @@ const createEmployee = async (req, res) => {
 // Login Employee
 const loginEmployee = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const tokenUrl = req.query.token;
 
-    // Find the employee by username
-    const employee = await Employee.findOne({ username });
+    if (tokenUrl) {
+      const decodedToken = jwt.verify(tokenUrl, process.env.SECRET);
+      const { email } = decodedToken;
+      const tokenEmployee = await Employee.findOne({ email });
 
-    if (!employee) {
-      return res.status(401).json({ message: "Invalid username or password." });
-    }
-
-    // Compare the provided password with the hashed password in the database
-    const passwordMatch = await bcrypt.compare(password, employee.password);
-
-    if (!passwordMatch) {
-      return res.status(401).json({ message: "Invalid username or password." });
-    }
-
-    // Generate a JSON Web Token (JWT) for authentication
-    const token = jwt.sign(
-      { employeeId: employee._id, accountantId: employee.accountantId },
-      process.env.SECRET,
-      {
-        expiresIn: process.env.TOKENTIME, // Token expiration time
+      if (!tokenEmployee) {
+        return res.status(401).json({ message: "Invalid token" });
       }
-    );
 
-    // Generate a refresh token
-    const refreshToken = jwt.sign(
-      { employeeId: employee._id, accountantId: employee.accountantId },
-      process.env.SECRET, // Use a different secret for refresh tokens
-      {
-        expiresIn: process.env.REFRESH_TOKENTIME, // Refresh token expiration time
-      }
-    );
+      // Generate a JSON Web Token (JWT) for authentication
+      const token = jwt.sign(
+        {
+          employeeId: tokenEmployee._id,
+          accountantId: tokenEmployee.accountantId,
+        },
+        process.env.SECRET,
+        {
+          expiresIn: process.env.TOKENTIME, // Token expiration time
+        }
+      );
 
-    // Set the refresh token as an HTTP-only cookie
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      sameSite: "none",
-      secure: "false",
-      expires: new Date(
-        Date.now() + parseInt(process.env.REFRESH_COOKIE_EXPIRY) * 3600000
-      ), // 3600000 milliseconds in an hour
-    });
+      // Generate a refresh token
+      const refreshToken = jwt.sign(
+        {
+          employeeId: tokenEmployee._id,
+          accountantId: tokenEmployee.accountantId,
+        },
+        process.env.SECRET, // Use a different secret for refresh tokens
+        {
+          expiresIn: process.env.REFRESH_TOKENTIME, // Refresh token expiration time
+        }
+      );
 
-    // Send the access token in the response
-    res
-      .cookie("token", token, {
+      // Set the refresh token as an HTTP-only cookie
+      res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         sameSite: "none",
         secure: "false",
-      })
-      .status(200)
-      .json("done");
+        expires: new Date(
+          Date.now() + parseInt(process.env.REFRESH_COOKIE_EXPIRY) * 3600000
+        ), // 3600000 milliseconds in an hour
+      });
+
+      // Send the access token in the response
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          sameSite: "none",
+          secure: "false",
+        })
+        .status(200)
+        .json("done");
+    } else {
+      const { email, password } = req.body;
+
+      // Find the employee by username
+      const employee = await Employee.findOne({ email });
+
+      if (!employee) {
+        return res
+          .status(401)
+          .json({ message: "Invalid username or password." });
+      }
+
+      // Compare the provided password with the hashed password in the database
+      const passwordMatch = await bcrypt.compare(password, employee.password);
+
+      if (!passwordMatch) {
+        return res
+          .status(401)
+          .json({ message: "Invalid username or password." });
+      }
+
+      // Generate a JSON Web Token (JWT) for authentication
+      const token = jwt.sign(
+        { employeeId: employee._id, accountantId: employee.accountantId },
+        process.env.SECRET,
+        {
+          expiresIn: process.env.TOKENTIME, // Token expiration time
+        }
+      );
+
+      // Generate a refresh token
+      const refreshToken = jwt.sign(
+        { employeeId: employee._id, accountantId: employee.accountantId },
+        process.env.SECRET, // Use a different secret for refresh tokens
+        {
+          expiresIn: process.env.REFRESH_TOKENTIME, // Refresh token expiration time
+        }
+      );
+
+      // Set the refresh token as an HTTP-only cookie
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        sameSite: "none",
+        secure: "false",
+        expires: new Date(
+          Date.now() + parseInt(process.env.REFRESH_COOKIE_EXPIRY) * 3600000
+        ), // 3600000 milliseconds in an hour
+      });
+
+      // Send the access token in the response
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          sameSite: "none",
+          secure: "false",
+        })
+        .status(200)
+        .json("done");
+    }
   } catch (error) {
     console.error(error);
     res
@@ -170,8 +246,16 @@ const loginEmployee = async (req, res) => {
 // Update Employee
 const updateEmployee = async (req, res) => {
   try {
-    const employeeId = req.user.employeeId;
+    const employeeId = req.params.id;
+    const tokenEmployeeId = req.user.accountantId;
     const updateData = req.body;
+
+    const checkEmployee = await Employee.findById(employeeId);
+    if (!checkEmployee.accountantId == tokenEmployeeId) {
+      return res
+        .status(403)
+        .json("you do not have access to perform this action");
+    }
 
     // Check if the user wants to update the password
     if (updateData.password) {
@@ -202,7 +286,14 @@ const updateEmployee = async (req, res) => {
 // Delete Employee
 const deleteEmployee = async (req, res) => {
   try {
-    const employeeId = req.user.employeeId;
+    const employeeId = req.params.id;
+    const tokenEmployeeId = req.user.accountantId;
+    const checkEmployee = await Employee.findById(employeeId);
+    if (!checkEmployee.accountantId == tokenEmployeeId) {
+      return res
+        .status(403)
+        .json("you do not have access to perform this action");
+    }
 
     // Delete the employee based on the provided ID
     const deletedEmployee = await Employee.findByIdAndRemove(employeeId);
@@ -223,14 +314,19 @@ const deleteEmployee = async (req, res) => {
 //get employee by id
 const getEmployeeById = async (req, res) => {
   try {
-    const _id = req.user.employeeId; // Extract the employee ID from the request params
+    const _id = req.params.id; // Extract the employee ID from the request params
 
+    const tokenEmployeeId = req.user.accountantId;
     // Find the employee by their ID
-    const employee = await Employee.findById(_id);
-
+    let employee = await Employee.findById(_id);
     // If the employee is not found, return a 404 error
     if (!employee) {
       return res.status(404).json({ message: "Employee not found." });
+    }
+    if (!(employee.accountantId === tokenEmployeeId)) {
+      return res
+        .status(403)
+        .json("you do not have access to perform this action");
     }
     employee.password = "";
     // Send a JSON response with the employee's details
@@ -263,84 +359,84 @@ const getAllEmployeesByAccountantId = async (req, res) => {
   }
 };
 
-const inviteLogin = async (req, res) => {
-  try {
-    const tokenUrl = req.params.token;
+// const inviteLogin = async (req, res) => {
+//   try {
+//     const tokenUrl = req.params.token;
 
-    // Verify and decode the token
-    const decodedToken = jwt.verify(tokenUrl, process.env.SECRET);
+//     // Verify and decode the token
+//     const decodedToken = jwt.verify(tokenUrl, process.env.SECRET);
 
-    const { username, password } = decodedToken;
+//     const { email, password } = decodedToken;
 
-    // Authenticate the employee using username and hashed password
-    // Implement your authentication logic here, e.g., querying the database
-    const employee = await Employee.findOne({ username, password });
+//     // Authenticate the employee using username and hashed password
+//     // Implement your authentication logic here, e.g., querying the database
+//     const employee = await Employee.findOne({ email, password });
 
-    if (!employee) {
-      return res.status(401).json({ message: "Invalid username or password." });
-    }
+//     if (!employee) {
+//       return res.status(401).json({ message: "Invalid username or password." });
+//     }
 
-    // Generate a JSON Web Token (JWT) for authentication
-    const token = jwt.sign(
-      { employeeId: employee._id, accountantId: employee.accountantId },
-      process.env.SECRET,
-      {
-        expiresIn: process.env.TOKENTIME, // Token expiration time
-      }
-    );
+//     // Generate a JSON Web Token (JWT) for authentication
+//     const token = jwt.sign(
+//       { employeeId: employee._id, accountantId: employee.accountantId },
+//       process.env.SECRET,
+//       {
+//         expiresIn: process.env.TOKENTIME, // Token expiration time
+//       }
+//     );
 
-    // Generate a refresh token
-    const refreshToken = jwt.sign(
-      { employeeId: employee._id, accountantId: employee.accountantId },
-      process.env.SECRET, // Use a different secret for refresh tokens
-      {
-        expiresIn: process.env.REFRESH_TOKENTIME, // Refresh token expiration time
-      }
-    );
+//     // Generate a refresh token
+//     const refreshToken = jwt.sign(
+//       { employeeId: employee._id, accountantId: employee.accountantId },
+//       process.env.SECRET, // Use a different secret for refresh tokens
+//       {
+//         expiresIn: process.env.REFRESH_TOKENTIME, // Refresh token expiration time
+//       }
+//     );
 
-    // Respond with the JWT token for the session
-    // Set the refresh token as an HTTP-only cookie
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
+//     // Respond with the JWT token for the session
+//     // Set the refresh token as an HTTP-only cookie
+//     res.cookie("refreshToken", refreshToken, {
+//       httpOnly: true,
 
-      sameSite: "none",
-      secure: "false",
-      expires: new Date(
-        Date.now() + parseInt(process.env.REFRESH_COOKIE_EXPIRY) * 3600000
-      ), // 3600000 milliseconds in an hour
-    });
+//       sameSite: "none",
+//       secure: "false",
+//       expires: new Date(
+//         Date.now() + parseInt(process.env.REFRESH_COOKIE_EXPIRY) * 3600000
+//       ), // 3600000 milliseconds in an hour
+//     });
 
-    // Send the access token in the response
-    res
-      .cookie("token", token, {
-        httpOnly: true,
-        sameSite: "none",
-        secure: "false",
-      })
-      .status(200)
-      .json("");
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: "Server error. Could not log in employee." });
-  }
-};
+//     // Send the access token in the response
+//     res
+//       .cookie("token", token, {
+//         httpOnly: true,
+//         sameSite: "none",
+//         secure: "false",
+//       })
+//       .status(200)
+//       .json("");
+//   } catch (error) {
+//     console.error(error);
+//     res
+//       .status(500)
+//       .json({ message: "Server error. Could not log in employee." });
+//   }
+// };
 
 // Function to get all bank information objects for an accountant
 const getAllBanksForAccountant = async (req, res) => {
   try {
-    const { accountantId } = req.user;
+    const { employeeId } = req.user;
 
     // Find the accountant based on the accountant ID
-    const accountant = await Accountant.findById(accountantId);
+    const employee = await Employee.findById(employeeId);
 
-    if (!accountant) {
+    if (!employee) {
       return res.status(404).json({ message: "Accountant not found." });
     }
 
     // Extract the banks array from the accountant object
-    const banks = accountant.banks || [];
+    const banks = employee.banks || [];
 
     res.status(200).json({ banks });
   } catch (error) {
@@ -348,6 +444,106 @@ const getAllBanksForAccountant = async (req, res) => {
     res
       .status(500)
       .json({ message: "Server error. Could not get bank information." });
+  }
+};
+
+const addBankToEmployee = async (req, res) => {
+  try {
+    const { bankName, accountName, accountNumber, sortCode } = req.body;
+    const employeeId = req.user.employeeId;
+
+    // Create a new bank object
+    const newBank = {
+      bankName,
+      accountName,
+      accountNumber,
+      sortCode,
+    };
+
+    // Find the employee based on the employee ID
+    const employee = await Employee.findById(employeeId);
+
+    if (!employee) {
+      return res.status(404).json({ message: "Accountant not found." });
+    }
+
+    // Add the new bank to the accountant's list of banks
+    employee.banks.push(newBank);
+
+    // Save the accountant with the updated bank list
+    await employee.save();
+
+    res.status(201).json({ message: "Bank added successfully." });
+  } catch (err) {
+    console.error(error);
+    res.status(500).json({ message: "Server error. Could not add bank." });
+  }
+};
+const removeBankByIdFromEmployee = async (req, res) => {
+  try {
+    const bankId = req.params.bankId;
+    const employeeId = req.user.employeeId; // Replace with the correct way to get the accountant ID
+
+    // Find the accountant based on the accountant ID
+    const employee = await Employee.findById(employeeId);
+
+    if (!employee) {
+      return res.status(404).json({ message: "Accountant not found." });
+    }
+
+    // Find the index of the bank to be removed
+    const bankIndex = employee.banks.findIndex((bank) => bank._id == bankId);
+
+    if (bankIndex === -1) {
+      return res.status(404).json({ message: "Bank not found." });
+    }
+
+    // Remove the bank from the accountant's list of banks
+    employee.banks.splice(bankIndex, 1);
+
+    // Save the accountant with the updated bank list
+    await employee.save();
+
+    res.status(200).json({ message: "Bank removed successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error. Could not remove bank." });
+  }
+};
+
+const editBankByIdForEmployee = async (req, res) => {
+  try {
+    const bankId = req.params.bankId;
+    const { bankName, accountName, accountNumber, sortCode } = req.body;
+    const employeeId = req.user.employeeId; // Replace with the correct way to get the accountant ID
+
+    // Find the accountant based on the accountant ID
+    const employee = await Employee.findById(employeeId);
+
+    if (!employee) {
+      return res.status(404).json({ message: "Accountant not found." });
+    }
+
+    // Find the bank to be edited
+    const bankToEdit = employee.banks.find((bank) => bank._id == bankId);
+
+    if (!bankToEdit) {
+      return res.status(404).json({ message: "Bank not found." });
+    }
+
+    // Update the bank details
+    bankToEdit.bankName = bankName;
+    bankToEdit.accountName = accountName;
+    bankToEdit.accountNumber = accountNumber;
+    bankToEdit.sortCode = sortCode;
+
+    // Save the accountant with the updated bank list
+    await employee.save();
+
+    res.status(200).json({ message: "Bank updated successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error. Could not edit bank." });
   }
 };
 
@@ -359,6 +555,8 @@ module.exports = {
   getEmployeeById,
   getAllEmployeesByAccountantId,
   refreshToken,
-  inviteLogin,
   getAllBanksForAccountant,
+  addBankToEmployee,
+  removeBankByIdFromEmployee,
+  editBankByIdForEmployee,
 };

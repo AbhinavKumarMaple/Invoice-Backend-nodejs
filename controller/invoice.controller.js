@@ -13,7 +13,6 @@ const createInvoice = async (req, res) => {
   const employeeName = await Employee.findById(req.user?.employeeId);
   try {
     const {
-      invoiceNumber,
       date,
       customerName,
       serviceDescription,
@@ -21,12 +20,20 @@ const createInvoice = async (req, res) => {
       vatRate,
       vatAmount,
       totalGross,
-      paymentMethod,
       bankAccount,
       paymentStatus,
       note,
     } = req.body;
 
+    const lastInvoiceNumber = await Invoice.findOne({
+      createdBy: createdBy, // Replace 'createdByID' with the actual ID you want to search for
+    }).sort({ invoiceNumber: -1 });
+    let invoiceNumber = 0;
+    if (!lastInvoiceNumber) {
+      invoiceNumber = 1;
+    } else {
+      invoiceNumber = lastInvoiceNumber.invoiceNumber + 1;
+    }
     // Create a new invoice instance
     const invoice = new Invoice({
       invoiceNumber,
@@ -37,7 +44,6 @@ const createInvoice = async (req, res) => {
       vatRate,
       vatAmount,
       totalGross,
-      paymentMethod,
       bankAccount,
       paymentStatus,
       note,

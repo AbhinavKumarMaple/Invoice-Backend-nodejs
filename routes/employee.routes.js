@@ -17,22 +17,22 @@ router.post(
 router.post("/login", employee.loginEmployee);
 // Update Accountant
 router.put(
-  "/update",
-  employeeAuthenticate.verifyToken,
+  "/update/:id",
+  accountantAuthenticate.verifyToken,
   employee.updateEmployee
 );
 
 // Delete Accountant
 router.delete(
-  "/delete",
-  employeeAuthenticate.verifyToken,
+  "/delete/:id",
+  accountantAuthenticate.verifyToken,
   employee.deleteEmployee
 );
 
 // Get Accountant by ID
 router.get(
-  "/myinfo",
-  employeeAuthenticate.verifyToken,
+  "/myinfo/:id",
+  accountantAuthenticate.verifyToken,
   employee.getEmployeeById
 );
 
@@ -44,18 +44,14 @@ router.get(
 );
 
 // Get refresh token
+router.get("/refresh-token", employee.refreshToken);
+
+//get a employee by id
 router.get(
-  "/refresh-token",
-
-  employee.refreshToken
+  "/employeeinfo",
+  employeeAuthenticate.verifyToken,
+  employee.getEmployeeById
 );
-
-// // Get All
-router.get("/invite/:token", employee.inviteLogin);
-
-// // login invite
-router.get("/invite/:token", employee.inviteLogin);
-
 router.get(
   "/bank",
   employeeAuthenticate.verifyToken,
