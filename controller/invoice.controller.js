@@ -1,19 +1,18 @@
-const { employee, accountant } = require(".");
 const Employee = require("../models/employeeSchema");
-const Accountant = require("../models/employeeSchema");
+const Accountant = require("../models/accountantSchema");
 const invoiceSchema = require("../models/invoiceSchema");
 const Invoice = require("../models/invoiceSchema");
 
 // Create Invoice (associated with an Employee)
 const createInvoice = async (req, res) => {
-  createdBy = req.user?.employeeId;
-  accountantId = req.user.accountantId;
+  let createdBy = req.user.employeeId;
+  let accountantId = req.user.accountantId;
   let employeeName = "";
   if (!createdBy) {
     createdBy = accountantId;
-    employeeName = await Accountant.findById(req.user.employeeId);
+    employeeName = await Accountant.findById(createdBy);
   } else {
-    employeeName = await Employee.findById(req.user.employeeId);
+    employeeName = await Employee.findById(createdBy);
   }
   try {
     const {
