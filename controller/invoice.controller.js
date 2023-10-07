@@ -184,7 +184,7 @@ const getAllInvoicesForEmployee = async (req, res) => {
     const startDate = req.query.startDate
       ? new Date(req.query.startDate)
       : new Date();
-    const endDate = req.body.endDate ? new Date(req.body.endDate) : new Date();
+    const endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
 
     // Calculate the end of the day for the end date
     endDate.setHours(23, 59, 59, 999);
@@ -262,7 +262,7 @@ const getInvoicesByEmployeeId = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Retrieve the date range from the request body or default to today's date
-    const { startDate, endDate } = req.body;
+    const { startDate, endDate } = req.query;
     let queryDate = {};
 
     // Set up the date filter based on the provided date range or today's date
