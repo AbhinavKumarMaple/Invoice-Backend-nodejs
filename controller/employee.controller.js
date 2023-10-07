@@ -310,11 +310,18 @@ const deleteEmployee = async (req, res) => {
 //get employee by id
 const getEmployeeById = async (req, res) => {
   try {
-    const _id = req.params.id; // Extract the employee ID from the request params
+    let id = req.user.employeeId;
+    if (!id) {
+      id = req.user.accountantId;
+    }
+    console.log(req.params.id);
+    if (req.params.id) {
+      id = req.params.id; // Extract the employee ID from the request params
+    }
 
     const tokenEmployeeId = req.user.accountantId;
     // Find the employee by their ID
-    let employee = await Employee.findById(_id);
+    let employee = await Employee.findById(id);
     // If the employee is not found, return a 404 error
     if (!employee) {
       return res.status(404).json({ message: "Employee not found." });

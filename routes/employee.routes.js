@@ -32,7 +32,14 @@ router.delete(
 // Get Accountant by ID
 router.get(
   "/myinfo/:id",
-  accountantAuthenticate.verifyToken,
+  employeeAuthenticate.verifyToken,
+  employee.getEmployeeById
+);
+
+// Get Accountant by ID
+router.get(
+  "/employeeinfo",
+  employeeAuthenticate.verifyToken,
   employee.getEmployeeById
 );
 
@@ -46,16 +53,31 @@ router.get(
 // Get refresh token
 router.get("/refresh-token", employee.refreshToken);
 
-//get a employee by id
-router.get(
-  "/employeeinfo",
-  employeeAuthenticate.verifyToken,
-  employee.getEmployeeById
-);
 router.get(
   "/bank",
   employeeAuthenticate.verifyToken,
   employee.getAllBanksForAccountant
+);
+
+// Get refresh token
+router.post(
+  "/addbank",
+  accountantAuthenticate.verifyToken,
+  employee.addBankToEmployee
+);
+
+// Get refresh token
+router.delete(
+  "/removebank/:bankId",
+  accountantAuthenticate.verifyToken,
+  employee.removeBankByIdFromEmployee
+);
+
+// Get refresh token
+router.put(
+  "/editbank/:bankId",
+  accountantAuthenticate.verifyToken,
+  employee.editBankByIdForEmployee
 );
 
 module.exports = router;
