@@ -181,8 +181,8 @@ const getAllInvoicesForEmployee = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Determine the start and end dates to filter by (default to today's date if not provided)
-    const startDate = req.body.startDate
-      ? new Date(req.body.startDate)
+    const startDate = req.query.startDate
+      ? new Date(req.query.startDate)
       : new Date();
     const endDate = req.body.endDate ? new Date(req.body.endDate) : new Date();
 
@@ -222,7 +222,7 @@ const getAllInvoicesForAccountant = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Retrieve the date range from the request body or default to today's date
-    const { startDate, endDate } = req.body;
+    const { startDate, endDate } = req.query;
     let queryDate = {};
 
     // Set up the date filter based on the provided date range or today's date
