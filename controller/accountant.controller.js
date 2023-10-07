@@ -117,9 +117,9 @@ const createAccountant = async (req, res) => {
 // Login Accountant
 const loginAccountant = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
     // Find the accountant by username
-    const accountant = await Accountant.findOne({ username });
+    const accountant = await Accountant.findOne({ email: email });
 
     if (!accountant) {
       return res.status(401).json({ message: "Invalid username or password." });
