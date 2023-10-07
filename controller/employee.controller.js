@@ -183,18 +183,14 @@ const loginEmployee = async (req, res) => {
       const employee = await Employee.findOne({ email });
 
       if (!employee) {
-        return res
-          .status(401)
-          .json({ message: "Invalid username or password." });
+        return res.status(401).json({ message: "Invalid email or password." });
       }
 
       // Compare the provided password with the hashed password in the database
       const passwordMatch = await bcrypt.compare(password, employee.password);
 
       if (!passwordMatch) {
-        return res
-          .status(401)
-          .json({ message: "Invalid username or password." });
+        return res.status(401).json({ message: "Invalid email or password." });
       }
 
       // Generate a JSON Web Token (JWT) for authentication

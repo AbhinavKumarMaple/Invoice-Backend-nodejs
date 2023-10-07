@@ -3,10 +3,12 @@ const VatRate = require("../models/vatRateSchema");
 // Get All VAT Rates by Employee ID
 const getAllVatRatesByEmployeeId = async (req, res) => {
   try {
+    console.log(req.user);
     let employeeId = req.user.employeeId;
-    if (req.user?.isAccountant == true) {
-      employeeId = req.accountantId;
+    if (!employeeId) {
+      employeeId = req.user.accountantId;
     }
+
     if (!employeeId) return res.status(500).json({ message: "require id" });
     // Find all VAT rates associated with the provided employee_id
     const vatRates = await VatRate.find({ employeeId: employeeId });
@@ -28,8 +30,8 @@ const createVatRate = async (req, res) => {
     let accountantId = req.user?.accountantId;
     let employeeId = req.user?.employeeId;
 
-    if (req.user?.isAccountant === true) {
-      employeeId = req.accountantId;
+    if (!employeeId) {
+      employeeId = req.user.accountantId;
     }
 
     // Check if a VAT rate with the same vatRate and employeeId already exists

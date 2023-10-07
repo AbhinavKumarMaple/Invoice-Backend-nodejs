@@ -179,12 +179,14 @@ const getAllInvoicesForEmployee = async (req, res) => {
 
     // Calculate the skip value based on the page number and limit
     const skip = (page - 1) * limit;
-
+    console.log(req.query);
     // Determine the start and end dates to filter by (default to today's date if not provided)
     const startDate = req.query.startDate
       ? new Date(req.query.startDate)
       : new Date();
-    const endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
+    const endDate = req.query.endDate
+      ? new Date(req.query.endDate)
+      : new Date();
 
     // Calculate the end of the day for the end date
     endDate.setHours(23, 59, 59, 999);
