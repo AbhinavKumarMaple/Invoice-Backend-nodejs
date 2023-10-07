@@ -22,6 +22,7 @@ const createInvoice = async (req, res) => {
       netAmount,
       vatRate,
       vatAmount,
+      createdFor,
       totalGross,
       bankAccount,
       paymentStatus,
@@ -53,6 +54,7 @@ const createInvoice = async (req, res) => {
       paymentStatus,
       note,
       createdBy,
+      createdFor,
       accountantId,
       employeeName: employeeName.username,
     });
