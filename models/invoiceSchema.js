@@ -17,7 +17,8 @@ const invoiceSchema = new mongoose.Schema({
   bankAccount: String,
   paymentStatus: String, // You can use an enum if you have predefined values
   note: String,
-  createdBy: { type: String, ref: "User", require: true }, // Assuming user can be either customer or employee
+  createdBy: { type: String, require: true }, // Assuming user can be either customer or employee
+  createdFor: { type: String, require: true },
   accountantId: { type: String, ref: "Accountant", require: true },
   employeeName: String,
 });
