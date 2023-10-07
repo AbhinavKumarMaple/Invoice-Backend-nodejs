@@ -1,5 +1,6 @@
-const { employee } = require(".");
+const { employee, accountant } = require(".");
 const Employee = require("../models/employeeSchema");
+const Accountant = require("../models/employeeSchema");
 const invoiceSchema = require("../models/invoiceSchema");
 const Invoice = require("../models/invoiceSchema");
 
@@ -7,10 +8,13 @@ const Invoice = require("../models/invoiceSchema");
 const createInvoice = async (req, res) => {
   createdBy = req.user?.employeeId;
   accountantId = req.user.accountantId;
+  let employeeName = "";
   if (!createdBy) {
     createdBy = accountantId;
+    employeeName = await Accountant.findById(req.user.employeeId);
+  } else {
+    employeeName = await Employee.findById(req.user.employeeId);
   }
-  const employeeName = await Employee.findById(req.user?.employeeId);
   try {
     const {
       date,
