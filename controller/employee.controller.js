@@ -403,7 +403,7 @@ const getEmployeeById = async (req, res) => {
 
     const tokenEmployeeId = req.user.accountantId;
     // Find the employee by their ID
-    let employee = await Employee.findById(id);
+    let employee = await Employee.findById(id).lean();
     // If the employee is not found, return a 404 error
     if (!employee) {
       return res.status(404).json({ message: "Employee not found." });
