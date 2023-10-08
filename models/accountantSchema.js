@@ -24,7 +24,7 @@ const accountantSchema = new mongoose.Schema({
     {
       data: Buffer,
       contentType: String
-    }], // Assuming logo links are strings
+    }],
   username: { type: String, unique: true },
   email: { type: String, unique: true },
   password: String,

@@ -21,6 +21,7 @@ const refreshToken = async (req, res) => {
           .status(403)
           .json({ message: "Username mismatch in the token." });
       }
+
       const employeeId = user.employeeId;
       // Find the accountant based on the username (you may use a unique identifier)
       const employee = await Employee.findById(employeeId);
