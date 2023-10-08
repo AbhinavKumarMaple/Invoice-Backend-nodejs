@@ -17,7 +17,7 @@ const customerSchema = new mongoose.Schema({
       sortCode: { type: String, required: true },
     },
   ],
-  creator: String, // Assuming creator can be either customer or accountant
+  creator: String,
   accountantId: String,
 });
 

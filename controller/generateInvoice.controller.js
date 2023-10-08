@@ -1,5 +1,5 @@
 const GeneratedInvoice = require("../models/generatedInvoiceSchema");
-
+var fs = require('fs');
 // Generate Invoice (associated with an Employee)
 const generateInvoice = async (req, res) => {
   try {
@@ -29,6 +29,15 @@ const generateInvoice = async (req, res) => {
       createdBy = employeeId;
     }
 
+    if (!req.file || req.file.length === 0) {
+      return res.status(400).send('No images uploaded.');
+    }
+    
+    const image = {
+      data: fs.readFileSync(req.file.path), // Use the 'buffer' property to store the file content
+      contentType: req.file.mimetype,
+    };
+
     // Create a new generated invoice instance
     const generatedInvoice = new GeneratedInvoice({
       invoiceNumber,
@@ -46,11 +55,11 @@ const generateInvoice = async (req, res) => {
       banks,
       customerAddress,
       accountantAddress,
-      logo,
+      logo:image,
       vatRegNo,
       crn,
     });
-
+    fs.unlinkSync(req.file.path);
     // Save the generated invoice to the database
     await generatedInvoice.save();
 
@@ -65,6 +74,8 @@ const generateInvoice = async (req, res) => {
   }
 };
 
+
+
 // Update Generated Invoice
 const updateGeneratedInvoice = async (req, res) => {
   try {
@@ -72,7 +83,7 @@ const updateGeneratedInvoice = async (req, res) => {
     let employeeId = req.user.employeeId;
     let accountantId = req.user.accountantId;
     if (req.user?.isAccountant == true) {
-      employeeId = req.user.accountantId;
+      employeeId = accountantId;
     }
     const updateData = req.body;
     const GeneratedInvoiceDetails = await GeneratedInvoice.findById(invoiceId);
@@ -95,6 +106,38 @@ const updateGeneratedInvoice = async (req, res) => {
     res
       .status(500)
       .json({ message: "Server error. Could not update generated invoice." });
+  }
+};
+
+// Function to update the logo of a generated invoice
+const updateLogoInGeneratedInvoice = async (req, res) => {
+  try {
+    const { id } = req.body;
+    const logo  = req.file; // Assuming you are using multer for file upload
+
+    console.log(req.file)
+
+    // Find the generated invoice by ID
+    const generatedInvoiceToUpdate = await GeneratedInvoice.findById(id);
+
+    if (!generatedInvoiceToUpdate) {
+      return res.status(404).json({ message: 'Generated invoice not found.' });
+    }
+
+    // Read the new logo file and store it in the 'logo' field
+    generatedInvoiceToUpdate.logo.data = fs.readFileSync(logo.path);
+    generatedInvoiceToUpdate.logo.contentType = logo.mimetype;
+
+    // Save the updated generated invoice
+    await generatedInvoiceToUpdate.save();
+
+    // Remove the uploaded file from the temporary storage
+    fs.unlinkSync(logo.path);
+
+    res.status(200).json({ message: 'Logo updated successfully.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error. Could not update logo.' });
   }
 };
 
@@ -228,5 +271,6 @@ module.exports = {
   deleteGeneratedInvoice,
   getGeneratedInvoiceByEmployee,
   getAllGeneratedInvoiceByEmployeeId,
+  updateLogoInGeneratedInvoice
   // getGeneratedInvoiceByAccountantId,
 };

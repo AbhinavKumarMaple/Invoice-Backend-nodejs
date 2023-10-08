@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Employee = require("../models/employeeSchema");
 const Accountant = require("../models/accountantSchema");
+var fs = require('fs');
 
 // Route to generate a refresh token for an accountant
 
@@ -118,6 +119,86 @@ const createEmployee = async (req, res) => {
       .json({ message: "Server error. Could not create employee." });
   }
 };
+
+const addImageToAccountant = async (req, res) => {
+  try {
+    // Get the accountant ID from the request user object (assuming you have it in req.user.accountantId)
+    const employeeid = req.body.id // Update this based on your actual implementation
+    // Find the accountant by ID
+    const employee = await Employee.findById(employeeid);
+
+    if (!employee) {
+      return res.status(404).json({ message: 'Accountant not found.' });
+    }
+
+    if (!req.file || req.file.length === 0) {
+      return res.status(400).send('No images uploaded.');
+    }
+    // console.log(req.file)
+    // Process and add the uploaded image(s) to the accountant's 'img' field
+    const image = {
+      data: fs.readFileSync(req.file.path), // Use the 'buffer' property to store the file content
+      contentType: req.file.mimetype,
+    };
+
+    employee.logo.push(image);
+
+      // Remove the uploaded file from the temporary storage
+      fs.unlinkSync(req.file.path);
+
+    // Save the updated accountant object with the new image(s)
+    await employee.save();
+
+    res.status(200).json({ message: 'Image(s) added to accountant successfully.' });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: 'Server error. Could not add image(s) to accountant.' });
+  }
+};
+
+
+// Remove Image from Accountant function
+const removeImageFromAccountant = async (req, res) => {
+  try {
+    // Get the accountant ID from the request user object (assuming you have it in req.user.accountantId)
+    const employeeid = req.user.employeeId; // Update this based on your actual implementation
+
+    // Find the accountant by ID
+    const employee = await Accountant.findById(employeeid);
+
+    if (!employee) {
+      return res.status(404).json({ message: 'Accountant not found.' });
+    }
+
+    // Get the image ID from req.params.id
+    const imageId = req.params.id;
+
+    // Find the index of the image with the specified ID in the accountant's 'logo' array
+    const imageIndex = employee.logo.findIndex((image) => image._id == imageId);
+
+    if (imageIndex === -1) {
+      return res.status(404).json({ message: 'Image not found in accountant\'s collection.' });
+    }
+
+    // Remove the image from the accountant's 'logo' array by index
+    employee.logo.splice(imageIndex, 1);
+
+    // Save the updated accountant object with the image removed
+    await employee.save();
+
+    res.status(200).json({ message: 'Image removed from accountant successfully.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error. Could not remove image from accountant.' });
+  }
+};
+
+
+
+
+
 
 // Login Employee
 const loginEmployee = async (req, res) => {
@@ -562,4 +643,6 @@ module.exports = {
   addBankToEmployee,
   removeBankByIdFromEmployee,
   editBankByIdForEmployee,
+  removeImageFromAccountant,
+  addImageToAccountant
 };

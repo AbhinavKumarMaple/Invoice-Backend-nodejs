@@ -6,11 +6,39 @@ const {
 } = require("../middleware"); // Replace with your authentication middleware
 const { employee } = require("../controller");
 
+var multer = require('multer');
+
+var storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'upload');
+    },
+    filename: (req, file, cb) => {
+      cb(null, file.fieldname + '-' + Date.now());
+    },
+  });
+
+var upload = multer({ storage: storage });
+
+
 // Create Accountant
 router.post(
   "/register",
   accountantAuthenticate.verifyToken,
   employee.createEmployee
+);
+
+// Route for uploading an image for a specific accountant
+router.post(
+  '/upload-image',
+  accountantAuthenticate.verifyToken,
+  upload.single('image'), // Use 'image' as the field name for the uploaded file
+  employee.addImageToAccountant
+);
+
+router.delete(
+  '/remove-image/:id',
+  accountantAuthenticate.verifyToken,
+  employee.removeImageFromAccountant
 );
 
 // login Accountant

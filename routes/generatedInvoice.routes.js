@@ -6,12 +6,36 @@ const {
 } = require("../middleware"); // Replace with your authentication middleware
 const { generateInvoice } = require("../controller");
 
+var multer = require('multer');
+
+var storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'upload');
+    },
+    filename: (req, file, cb) => {
+      cb(null, file.fieldname + '-' + Date.now());
+    },
+  });
+
+var upload = multer({ storage: storage });
+
 // Generate Invoice
 router.post(
   "/create",
   employeeAuthenticate.verifyToken,
+  upload.single('image'),
   generateInvoice.generateInvoice
 );
+
+// Route for uploading an image for a specific accountant
+router.post(
+  '/update-image',
+  employeeAuthenticate.verifyToken,
+  upload.single('image'), // Use 'image' as the field name for the uploaded file
+  generateInvoice.updateLogoInGeneratedInvoice
+);
+
+
 
 // Update Generated Invoice
 router.put(

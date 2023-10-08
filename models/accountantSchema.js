@@ -20,10 +20,15 @@ const accountantSchema = new mongoose.Schema({
       sortCode: String,
     },
   ],
-  logo: [String], // Assuming logo links are strings
+  logo: [
+    {
+      data: Buffer,
+      contentType: String
+    }], // Assuming logo links are strings
   username: { type: String, unique: true },
   email: { type: String, unique: true },
   password: String,
+
 });
 
 module.exports = mongoose.model("Accountant", accountantSchema);

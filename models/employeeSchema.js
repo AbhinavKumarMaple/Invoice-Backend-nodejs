@@ -20,10 +20,19 @@ const employeeSchema = new mongoose.Schema({
       sortCode: String,
     },
   ],
-  logo: { type: String }, // Assuming logo links are strings
+  logo: [
+    {
+      data: Buffer,
+      contentType: String
+    }], 
   username: { type: String },
   email: { type: String, unique: true },
   password: String,
+  img:
+	{
+		data: Buffer,
+		contentType: String
+	}
 });
 
 module.exports = mongoose.model("Employee", employeeSchema);
