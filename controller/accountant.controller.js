@@ -141,6 +141,9 @@ const addImageToAccountant = async (req, res) => {
       data: fs.readFileSync(req.file.path), // Use the 'buffer' property to store the file content
       contentType: req.file.mimetype,
     };
+    // const obj = {
+    //   img: image,
+    // };
 
       accountant.logo.push(image);
 
@@ -158,6 +161,37 @@ const addImageToAccountant = async (req, res) => {
       .json({ message: 'Server error. Could not add image(s) to accountant.' });
   }
 };
+
+const getAccountantLogos = async (req, res) => {
+  try {
+    const accountantId = req.user.accountantId; // Replace 'accountantId' with the actual cookie name
+
+    // Find the accountant based on the accountant ID from the cookie
+    let accountant = await Accountant.findById(accountantId);
+    accountant.password = "";
+
+    if (!accountant) {
+      return res.status(404).json({ message: "Accountant not found." });
+    }
+
+    // Convert the binary logo data to base64 string for each logo
+    const base64Logos = accountant.logo.map((logo) => ({
+      id:logo._id,
+      data: logo.data.toString('base64'), // Convert Buffer to base64
+      contentType: logo.contentType,
+    }));
+
+
+    res.status(200).json(base64Logos);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Server error. Could not get accountant logos." });
+  }
+};
+
+
 
 
 // Remove Image from Accountant function
@@ -319,6 +353,7 @@ const deleteAccountant = async (req, res) => {
   }
 };
 
+
 // Get Accountant by ID from Cookie
 const getAccountantById = async (req, res) => {
   try {
@@ -327,9 +362,13 @@ const getAccountantById = async (req, res) => {
     // Find the accountant based on the accountant ID from the cookie
     let accountant = await Accountant.findById(accountantId);
     accountant.password = "";
+
     if (!accountant) {
       return res.status(404).json({ message: "Accountant not found." });
     }
+    // data:${logo.contentType};base64,${logo.data.toString('base64')}
+    // Replace the 'logo' field with the base64 logo data
+    accountant.logo = "";
 
     res.status(200).json(accountant);
   } catch (error) {
@@ -339,6 +378,8 @@ const getAccountantById = async (req, res) => {
       .json({ message: "Server error. Could not get accountant by ID." });
   }
 };
+
+
 
 const addBankToAccountant = async (req, res) => {
   try {
@@ -488,5 +529,6 @@ module.exports = {
   editBankByIdForAccountant,
   generateInviteLink,
   addImageToAccountant,
-  removeImageFromAccountant
+  removeImageFromAccountant,
+  getAccountantLogos
 };

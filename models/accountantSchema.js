@@ -28,7 +28,11 @@ const accountantSchema = new mongoose.Schema({
   username: { type: String, unique: true },
   email: { type: String, unique: true },
   password: String,
-
+  img:[
+	{
+		data: Buffer,
+		contentType: String
+	}],
 });
 
 module.exports = mongoose.model("Accountant", accountantSchema);

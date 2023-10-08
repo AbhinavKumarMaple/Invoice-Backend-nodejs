@@ -48,6 +48,13 @@ router.put(
   accountant.updateAccountant
 );
 
+router.get(
+  "/getlogo",
+  accountantAuthenticate.verifyToken,
+  accountant.getAccountantLogos
+);
+
+
 // Delete Accountant
 router.delete(
   "/delete",
