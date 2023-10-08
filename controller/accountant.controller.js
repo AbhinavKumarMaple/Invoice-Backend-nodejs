@@ -2,11 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Accountant = require("../models/accountantSchema");
 const Employee = require("../models/employeeSchema");
-var fs = require('fs');
-
-
-
-
+var fs = require("fs");
 
 // Route to generate a refresh token for an accountant
 
@@ -64,7 +60,6 @@ const refreshToken = async (req, res) => {
 // Create Accountant function (your existing code)
 const createAccountant = async (req, res) => {
   try {
-
     const {
       name,
       businessName,
@@ -129,11 +124,11 @@ const addImageToAccountant = async (req, res) => {
     const accountant = await Accountant.findById(accountantId);
 
     if (!accountant) {
-      return res.status(404).json({ message: 'Accountant not found.' });
+      return res.status(404).json({ message: "Accountant not found." });
     }
 
     if (!req.file || req.file.length === 0) {
-      return res.status(400).send('No images uploaded.');
+      return res.status(400).send("No images uploaded.");
     }
     // console.log(req.file)
     // Process and add the uploaded image(s) to the accountant's 'img' field
@@ -145,20 +140,22 @@ const addImageToAccountant = async (req, res) => {
     //   img: image,
     // };
 
-      accountant.logo.push(image);
+    accountant.logo.push(image);
 
-      // Remove the uploaded file from the temporary storage
-      fs.unlinkSync(req.file.path);
+    // Remove the uploaded file from the temporary storage
+    fs.unlinkSync(req.file.path);
 
     // Save the updated accountant object with the new image(s)
     await accountant.save();
 
-    res.status(200).json({ message: 'Image(s) added to accountant successfully.' });
+    res
+      .status(200)
+      .json({ message: "Image(s) added to accountant successfully." });
   } catch (error) {
     console.error(error);
     res
       .status(500)
-      .json({ message: 'Server error. Could not add image(s) to accountant.' });
+      .json({ message: "Server error. Could not add image(s) to accountant." });
   }
 };
 
@@ -176,11 +173,10 @@ const getAccountantLogos = async (req, res) => {
 
     // Convert the binary logo data to base64 string for each logo
     const base64Logos = accountant.logo.map((logo) => ({
-      id:logo._id,
-      data: logo.data.toString('base64'), // Convert Buffer to base64
+      id: logo._id,
+      data: logo.data.toString("base64"), // Convert Buffer to base64
       contentType: logo.contentType,
     }));
-
 
     res.status(200).json(base64Logos);
   } catch (error) {
@@ -190,9 +186,6 @@ const getAccountantLogos = async (req, res) => {
       .json({ message: "Server error. Could not get accountant logos." });
   }
 };
-
-
-
 
 // Remove Image from Accountant function
 const removeImageFromAccountant = async (req, res) => {
@@ -204,17 +197,21 @@ const removeImageFromAccountant = async (req, res) => {
     const accountant = await Accountant.findById(accountantId);
 
     if (!accountant) {
-      return res.status(404).json({ message: 'Accountant not found.' });
+      return res.status(404).json({ message: "Accountant not found." });
     }
 
     // Get the image ID from req.params.id
     const imageId = req.params.id;
 
     // Find the index of the image with the specified ID in the accountant's 'logo' array
-    const imageIndex = accountant.logo.findIndex((image) => image._id == imageId);
+    const imageIndex = accountant.logo.findIndex(
+      (image) => image._id == imageId
+    );
 
     if (imageIndex === -1) {
-      return res.status(404).json({ message: 'Image not found in accountant\'s collection.' });
+      return res
+        .status(404)
+        .json({ message: "Image not found in accountant's collection." });
     }
 
     // Remove the image from the accountant's 'logo' array by index
@@ -223,13 +220,16 @@ const removeImageFromAccountant = async (req, res) => {
     // Save the updated accountant object with the image removed
     await accountant.save();
 
-    res.status(200).json({ message: 'Image removed from accountant successfully.' });
+    res
+      .status(200)
+      .json({ message: "Image removed from accountant successfully." });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error. Could not remove image from accountant.' });
+    res.status(500).json({
+      message: "Server error. Could not remove image from accountant.",
+    });
   }
 };
-
 
 // Login Accountant
 const loginAccountant = async (req, res) => {
@@ -353,20 +353,18 @@ const deleteAccountant = async (req, res) => {
   }
 };
 
-
 // Get Accountant by ID from Cookie
 const getAccountantById = async (req, res) => {
   try {
     const accountantId = req.user.accountantId; // Replace 'accountantId' with the actual cookie name
 
     // Find the accountant based on the accountant ID from the cookie
-    let accountant = await Accountant.findById(accountantId).lean();
+    let accountant = await Accountant.findById(accountantId).select("-logo");
     accountant.password = "";
 
     if (!accountant) {
       return res.status(404).json({ message: "Accountant not found." });
     }
-
 
     res.status(200).json(accountant);
   } catch (error) {
@@ -376,8 +374,6 @@ const getAccountantById = async (req, res) => {
       .json({ message: "Server error. Could not get accountant by ID." });
   }
 };
-
-
 
 const addBankToAccountant = async (req, res) => {
   try {
@@ -528,5 +524,5 @@ module.exports = {
   generateInviteLink,
   addImageToAccountant,
   removeImageFromAccountant,
-  getAccountantLogos
+  getAccountantLogos,
 };
