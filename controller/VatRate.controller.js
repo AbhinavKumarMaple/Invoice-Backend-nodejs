@@ -42,7 +42,7 @@ const createVatRate = async (req, res) => {
 
     if (existingVatRate) {
       return res
-        .status(400)
+        .status(200)
         .json({ message: "VAT rate with this rate already exists." });
     }
 
