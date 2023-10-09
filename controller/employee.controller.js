@@ -68,7 +68,6 @@ const createEmployee = async (req, res) => {
       vatNumber,
       crnNumber,
       banks,
-      logo,
     } = req.body;
     const accountantId = req.user.accountantId;
     // Check if the accountant with the specified accountantId exists

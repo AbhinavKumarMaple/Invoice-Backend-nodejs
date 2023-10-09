@@ -32,7 +32,7 @@ const generateInvoice = async (req, res) => {
       return res.status(400).send("No images uploaded.");
     }
 
-    const image = {
+    const logo = {
       data: fs.readFileSync(req.file.path), // Use the 'buffer' property to store the file content
       contentType: req.file.mimetype,
     };
@@ -54,7 +54,7 @@ const generateInvoice = async (req, res) => {
       banks,
       customerAddress,
       accountantAddress,
-      logo: image,
+      logo,
       vatRegNo,
       crn,
     });
