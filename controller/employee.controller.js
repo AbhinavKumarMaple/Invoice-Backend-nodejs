@@ -164,15 +164,15 @@ const addImageToAccountant = async (req, res) => {
 const removeImageFromAccountant = async (req, res) => {
   try {
     // Get the accountant ID from the request user object (assuming you have it in req.user.accountantId)
-    const employeeid = req.user.employeeId; // Update this based on your actual implementation
+    // const employeeid = req.user.employeeId; // Update this based on your actual implementation
 
     // Find the accountant by ID
-    const employee = await Accountant.findById(employeeid);
+    const employeeId = req.params.employeeId;
 
+    const employee = await Employee.findById(employeeId);
     if (!employee) {
       return res.status(404).json({ message: "Accountant not found." });
     }
-
     // Get the image ID from req.params.id
     const imageId = req.params.id;
 

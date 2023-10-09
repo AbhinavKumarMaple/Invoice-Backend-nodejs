@@ -1,5 +1,5 @@
 const GeneratedInvoice = require("../models/generatedInvoiceSchema");
-var fs = require("fs");
+
 // Generate Invoice (associated with an Employee)
 const generateInvoice = async (req, res) => {
   try {
@@ -19,6 +19,7 @@ const generateInvoice = async (req, res) => {
       accountantAddress,
       vatRegNo,
       crn,
+      logo,
     } = req.body;
     let { employeeId, accountantId } = req.user;
     let createdBy;
@@ -27,15 +28,6 @@ const generateInvoice = async (req, res) => {
     } else {
       createdBy = employeeId;
     }
-
-    if (!req.file || req.file.length === 0) {
-      return res.status(400).send("No images uploaded.");
-    }
-
-    const logo = {
-      data: fs.readFileSync(req.file.path), // Use the 'buffer' property to store the file content
-      contentType: req.file.mimetype,
-    };
 
     // Create a new generated invoice instance
     const generatedInvoice = new GeneratedInvoice({
@@ -58,7 +50,7 @@ const generateInvoice = async (req, res) => {
       vatRegNo,
       crn,
     });
-    fs.unlinkSync(req.file.path);
+
     // Save the generated invoice to the database
     await generatedInvoice.save();
 
@@ -197,7 +189,8 @@ const getGeneratedInvoiceByEmployee = async (req, res) => {
       createdBy: employeeId,
     })
       .skip(skip) // Skip the specified number of records
-      .limit(limit); // Limit the number of records returned
+      .limit(limit)
+      .lean(); // Limit the number of records returned
 
     res.status(200).json(generatedInvoices);
   } catch (error) {
