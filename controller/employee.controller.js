@@ -102,7 +102,6 @@ const createEmployee = async (req, res) => {
       vatNumber,
       crnNumber,
       banks,
-      logo,
       username,
       email,
       password: hashedPassword,
