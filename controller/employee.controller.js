@@ -122,8 +122,9 @@ const createEmployee = async (req, res) => {
 const addImageToAccountant = async (req, res) => {
   try {
     // Get the accountant ID from the request user object (assuming you have it in req.user.accountantId)
-    const employeeid = req.body.id; // Update this based on your actual implementation
+    const employeeid = req.body.employeeId; // Update this based on your actual implementation
     // Find the accountant by ID
+
     const employee = await Employee.findById(employeeid);
 
     if (!employee) {
@@ -133,7 +134,6 @@ const addImageToAccountant = async (req, res) => {
     if (!req.file || req.file.length === 0) {
       return res.status(400).send("No images uploaded.");
     }
-    // console.log(req.file)
     // Process and add the uploaded image(s) to the accountant's 'img' field
     const image = {
       data: fs.readFileSync(req.file.path), // Use the 'buffer' property to store the file content
@@ -434,12 +434,13 @@ const getAllEmployeesByAccountantId = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Find employees that match the accountantId with pagination
-    const employees = await Employee.find({ accountantId: accountantId })
-      .select("-logo")
+    let employees = await Employee.find({ accountantId: accountantId })
+      .select(["-logo", "-password"])
       .skip(skip) // Skip the specified number of records
       .limit(limit); // Limit the number of records returned
 
     // Send a JSON response with the array of employee details
+
     res.status(200).json(employees);
   } catch (error) {
     console.error(error);
