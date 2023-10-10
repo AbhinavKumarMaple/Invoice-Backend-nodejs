@@ -171,9 +171,14 @@ const getInvoiceById = async (req, res) => {
 const getAllInvoicesForEmployee = async (req, res) => {
   try {
     let employeeId = req.user?.employeeId;
+    let id;
+    let username = req.query.username; // Get the username query parameter
 
     if (req.user?.isAccountant == true) {
       employeeId = req.user?.accountantId;
+      id = req.user.accountantId;
+    } else {
+      id = req.user.employeeId;
     }
 
     const page = parseInt(req.query.page) || 1; // Get the page number from query parameters, default to 1 if not provided
@@ -193,15 +198,26 @@ const getAllInvoicesForEmployee = async (req, res) => {
     // Calculate the end of the day for the end date
     endDate.setHours(23, 59, 59, 999);
 
-    // Find invoices associated with the provided employee_id, filtered by date range, with pagination
-    const invoices = await Invoice.find({
+    // Define a filter object based on the provided employeeId, username, and date range
+    const filter = {
       createdBy: employeeId,
-      date: { $gte: startDate, $lte: endDate }, // Filter invoices within the specified date range
-    })
+      date: { $gte: startDate, $lte: endDate },
+    };
+    if (username) {
+      filter.username = username;
+    }
+
+    // Find invoices associated with the filter and pagination
+    const invoices = await Invoice.find(filter)
       .skip(skip) // Skip the specified number of records
       .limit(limit); // Limit the number of records returned
 
-    res.status(200).json(invoices);
+    if (
+      invoices.createdBy == id ||
+      (invoices.createdBy == id && req.user?.isAccountant == true)
+    ) {
+      res.status(200).json(invoices);
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -225,8 +241,8 @@ const getAllInvoicesForAccountant = async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
-    // Retrieve the date range from the request body or default to today's date
-    const { startDate, endDate } = req.query;
+    // Retrieve the date range from the request query parameters or default to today's date
+    const { startDate, endDate, username } = req.query;
     let queryDate = {};
 
     // Set up the date filter based on the provided date range or today's date
@@ -239,13 +255,17 @@ const getAllInvoicesForAccountant = async (req, res) => {
       queryDate = new Date().toISOString().split("T")[0]; // Default to today's date
     }
 
-    // Find invoices associated with the provided accountant_id and date range with pagination
-    const invoices = await Invoice.find({
+    // Define the filter object based on accountantId and username (if provided)
+    const filter = {
       accountantId: accountantId,
       date: queryDate, // Filter by the specified date or date range
-    })
-      .skip(skip)
-      .limit(limit);
+    };
+    if (username) {
+      filter.username = username;
+    }
+
+    // Find invoices associated with the provided filter and pagination
+    const invoices = await Invoice.find(filter).skip(skip).limit(limit);
 
     res.status(200).json(invoices);
   } catch (error) {
@@ -266,7 +286,7 @@ const getInvoicesByEmployeeId = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Retrieve the date range from the request body or default to today's date
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, username } = req.query;
     let queryDate = {};
 
     // Set up the date filter based on the provided date range or today's date
@@ -279,11 +299,17 @@ const getInvoicesByEmployeeId = async (req, res) => {
       queryDate = new Date().toISOString().split("T")[0]; // Default to today's date
     }
 
-    // Query the database to find invoices associated with the employee, date range, and pagination
-    const invoices = await Invoice.find({
+    // Define the filter object based on createdBy (employeeId) and username (if provided)
+    const filter = {
       createdBy: employeeId,
       date: queryDate, // Filter by the specified date range or date
-    })
+    };
+    if (username) {
+      filter.username = username;
+    }
+
+    // Query the database to find invoices associated with the employee, date range, and pagination
+    const invoices = await Invoice.find(filter)
       .skip(skip) // Skip the specified number of records
       .limit(limit); // Limit the number of records returned
 

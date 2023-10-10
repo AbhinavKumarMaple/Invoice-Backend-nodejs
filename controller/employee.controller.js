@@ -441,18 +441,24 @@ const getAllEmployeesByAccountantId = async (req, res) => {
     const { accountantId } = req.user; // Extract accountantId from req.user
     const page = parseInt(req.query.page) || 1; // Get the page number from query parameters, default to 1 if not provided
     const limit = parseInt(req.query.limit) || 20; // Get the limit (number of records per page) from query parameters, default to 10 if not provided
+    const username = req.query.username; // Get the username query parameter
 
     // Calculate the skip value based on the page number and limit
     const skip = (page - 1) * limit;
 
-    // Find employees that match the accountantId with pagination
-    let employees = await Employee.find({ accountantId: accountantId })
+    // Define a filter object based on the accountantId and optional username
+    const filter = { accountantId: accountantId };
+    if (username) {
+      filter.username = username;
+    }
+
+    // Find employees that match the filter with pagination
+    let employees = await Employee.find(filter)
       .select(["-logo", "-password"])
       .skip(skip) // Skip the specified number of records
       .limit(limit); // Limit the number of records returned
 
     // Send a JSON response with the array of employee details
-
     res.status(200).json(employees);
   } catch (error) {
     console.error(error);
