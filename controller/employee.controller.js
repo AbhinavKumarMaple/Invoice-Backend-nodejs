@@ -70,6 +70,10 @@ const createEmployee = async (req, res) => {
       banks,
     } = req.body;
     const accountantId = req.user.accountantId;
+
+    if (!req.file || req.file.length === 0) {
+      return res.status(400).send("No images uploaded.");
+    }
     // Check if the accountant with the specified accountantId exists
     const existingAccountant = await Accountant.findById(accountantId);
 
@@ -90,6 +94,12 @@ const createEmployee = async (req, res) => {
       });
     }
 
+    // Process and add the uploaded image(s) to the accountant's 'img' field
+    const logo = {
+      data: fs.readFileSync(req.file.path), // Use the 'buffer' property to store the file content
+      contentType: req.file.mimetype,
+    };
+
     // Hash the password before saving it
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -104,8 +114,10 @@ const createEmployee = async (req, res) => {
       banks,
       username,
       email,
+      logo,
       password: hashedPassword,
     });
+    fs.unlinkSync(req.file.path);
 
     // Save the employee to the database
     await employee.save();

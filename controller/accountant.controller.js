@@ -71,7 +71,6 @@ const createAccountant = async (req, res) => {
       username,
       email,
       password,
-      logo,
     } = req.body; // Use req.body to access JSON data
 
     // Check if the accountant with the same username or email already exists
@@ -97,7 +96,7 @@ const createAccountant = async (req, res) => {
       vatNumber,
       crnNumber,
       banks,
-      logo,
+
       username,
       email,
       password: hashedPassword,
