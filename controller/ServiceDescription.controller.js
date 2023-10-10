@@ -3,12 +3,15 @@ const ServiceDescription = require("../models/serviceDescriptionSchema");
 // Get All Service Descriptions by Employee ID
 const getAllServiceDescriptionsByEmployeeId = async (req, res) => {
   try {
-    let employeeId = req.params.employee_id;
+    let employeeId = req.user.employeeId;
     if (req.user?.isAccountant == true) {
-      employeeId = req.accountantId;
+      employeeId = req.user.accountantId;
     }
+    console.log(employeeId);
     // Find all service descriptions associated with the provided employee_id
-    const serviceDescriptions = await ServiceDescription.find({ employeeId });
+    const serviceDescriptions = await ServiceDescription.find({
+      employeeId: employeeId,
+    });
 
     res.status(200).json(serviceDescriptions);
   } catch (error) {
