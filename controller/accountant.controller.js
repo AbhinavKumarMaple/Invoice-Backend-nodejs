@@ -96,7 +96,6 @@ const createAccountant = async (req, res) => {
       vatNumber,
       crnNumber,
       banks,
-
       username,
       email,
       password: hashedPassword,
@@ -129,32 +128,30 @@ const addImageToAccountant = async (req, res) => {
     if (!req.file || req.file.length === 0) {
       return res.status(400).send("No images uploaded.");
     }
-    // console.log(req.file)
-    // Process and add the uploaded image(s) to the accountant's 'img' field
-    const image = {
+
+    // Process and add the uploaded image to the accountant's 'logo' field
+    const newImage = {
       data: fs.readFileSync(req.file.path), // Use the 'buffer' property to store the file content
       contentType: req.file.mimetype,
     };
-    // const obj = {
-    //   img: image,
-    // };
-
-    accountant.logo.push(image);
 
     // Remove the uploaded file from the temporary storage
     fs.unlinkSync(req.file.path);
 
-    // Save the updated accountant object with the new image(s)
+    // Replace the existing logo array with the new image
+    accountant.logo = [newImage];
+
+    // Save the updated accountant object with the new image
     await accountant.save();
 
     res
       .status(200)
-      .json({ message: "Image(s) added to accountant successfully." });
+      .json({ message: "Logo updated for accountant successfully." });
   } catch (error) {
     console.error(error);
     res
       .status(500)
-      .json({ message: "Server error. Could not add image(s) to accountant." });
+      .json({ message: "Server error. Could not update logo for accountant." });
   }
 };
 
