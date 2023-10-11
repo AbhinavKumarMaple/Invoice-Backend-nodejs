@@ -3,7 +3,8 @@ const Customer = require("../models/customerSchema");
 // Create Customer
 const createCustomer = async (req, res) => {
   const { employeeId, accountantId } = req.user;
-  if (employeeId) {
+  console.log(employeeId)
+  if ("this is employee" + employeeId) {
     creator = employeeId;
   } else {
     creator = accountantId;
@@ -40,12 +41,13 @@ const createCustomer = async (req, res) => {
 // Update Customer
 const updateCustomer = async (req, res) => {
   try {
-    const _id = req.params.customerId; // Extract the customer ID from the request params
+    const id = req.params.customerId; // Extract the customer ID from the request params
+
     const { name, contactNumber, address } = req.body;
     const { accountantId } = req.user; // Extract employeeId and accountantId from req.user
 
-    // Find the existing customer by ID
-    const existingCustomer = await Customer.findById(_id);
+    // Find the existing customer by IDs
+    const existingCustomer = await Customer.findById(id);
 
     // If the customer doesn't exist, return a 404 error
     if (!existingCustomer) {
@@ -139,7 +141,7 @@ const getCustomerById = async (req, res) => {
 
 const getAllCustomers = async (req, res) => {
   try {
-    const { accountantId } = req.user; // Extract accountantId from req.user
+    const { employeeId } = req.user; // Extract accountantId from req.user
     const page = parseInt(req.query.page) || 1; // Current page (default to 1)
     const limit = parseInt(req.query.limit) || 10; // Number of items per page (default to 10)
 
@@ -148,18 +150,17 @@ const getAllCustomers = async (req, res) => {
 
     // Retrieve the username from the query parameters, if provided
     const username = req.query.username;
-
     // Define the filter object based on accountantId and username (if provided)
-    const filter = { accountantId: accountantId };
+    const filter = { creator: employeeId };
     if (username) {
       filter.username = username;
     }
-
+console.log(filter)
     // Find customers that match the filter with pagination
     const customers = await Customer.find(filter)
       .skip(skip)
       .limit(limit);
-
+    console.log(customers)
     // Count the total number of customers for pagination information
     const totalCustomers = await Customer.countDocuments(filter);
 
