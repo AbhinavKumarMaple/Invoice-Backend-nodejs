@@ -131,43 +131,45 @@ const createEmployee = async (req, res) => {
   }
 };
 
-const addImageToAccountant = async (req, res) => {
+const addImageToEmployee = async (req, res) => {
   try {
-    // Get the accountant ID from the request user object (assuming you have it in req.user.accountantId)
-    const employeeid = req.body.employeeId; // Update this based on your actual implementation
-    // Find the accountant by ID
+    // Get the employee ID from the request body (assuming you have it as employeeId)
+    const employeeId = req.body.employeeId; // Update this based on your actual implementation
 
-    const employee = await Employee.findById(employeeid);
+    // Find the employee by ID
+    const employee = await Employee.findById(employeeId);
 
     if (!employee) {
-      return res.status(404).json({ message: "Accountant not found." });
+      return res.status(404).json({ message: "Employee not found." });
     }
 
     if (!req.file || req.file.length === 0) {
       return res.status(400).send("No images uploaded.");
     }
-    // Process and add the uploaded image(s) to the accountant's 'img' field
-    const image = {
+
+    // Process and add the uploaded image to the employee's 'logo' field
+    const newImage = {
       data: fs.readFileSync(req.file.path), // Use the 'buffer' property to store the file content
       contentType: req.file.mimetype,
     };
 
-    employee.logo.push(image);
-
     // Remove the uploaded file from the temporary storage
     fs.unlinkSync(req.file.path);
 
-    // Save the updated accountant object with the new image(s)
+    // Replace the existing logo array with the new image
+    employee.logo = [newImage];
+
+    // Save the updated employee object with the new image
     await employee.save();
 
     res
       .status(200)
-      .json({ message: "Image(s) added to accountant successfully." });
+      .json({ message: "Logo updated for employee successfully." });
   } catch (error) {
     console.error(error);
     res
       .status(500)
-      .json({ message: "Server error. Could not add image(s) to accountant." });
+      .json({ message: "Server error. Could not update logo for employee." });
   }
 };
 
@@ -416,7 +418,7 @@ const getEmployeeById = async (req, res) => {
     const tokenEmployeeId = req.user.accountantId;
 
     // Find the employee by their ID
-    let employee = await Employee.findById(id);
+    let employee = await Employee.findById(id).lean();
 
     // If the employee is not found, return a 404 error
     if (!employee) {
@@ -603,5 +605,5 @@ module.exports = {
   removeBankByIdFromEmployee,
   editBankByIdForEmployee,
   removeImageFromAccountant,
-  addImageToAccountant,
+  addImageToEmployee,
 };

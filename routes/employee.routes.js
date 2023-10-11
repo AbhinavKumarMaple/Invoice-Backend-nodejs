@@ -32,7 +32,7 @@ router.post(
   "/upload-image",
   accountantAuthenticate.verifyToken,
   upload.single("image"), // Use 'image' as the field name for the uploaded file
-  employee.addImageToAccountant
+  employee.addImageToEmployee
 );
 
 router.delete(
