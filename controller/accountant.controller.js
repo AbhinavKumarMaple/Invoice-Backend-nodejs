@@ -133,7 +133,7 @@ const addImageToAccountant = async (req, res) => {
     if (accountant.logo && accountant.logo.length > 0) {
       // If a logo exists, delete it
       // Assuming that only one logo is allowed, you can delete the first element
-      fs.unlinkSync(accountant.logo[0].data.path); // Delete the existing image file
+      // fs.unlinkSync(accountant.logo[0].data.path); // Delete the existing image file
       accountant.logo = []; // Clear the logo array
     }
 
