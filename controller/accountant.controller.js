@@ -129,6 +129,14 @@ const addImageToAccountant = async (req, res) => {
       return res.status(400).send("No images uploaded.");
     }
 
+    // Check if the accountant already has a logo
+    if (accountant.logo && accountant.logo.length > 0) {
+      // If a logo exists, delete it
+      // Assuming that only one logo is allowed, you can delete the first element
+      fs.unlinkSync(accountant.logo[0].data.path); // Delete the existing image file
+      accountant.logo = []; // Clear the logo array
+    }
+
     // Process and add the uploaded image to the accountant's 'logo' field
     const newImage = {
       data: fs.readFileSync(req.file.path), // Use the 'buffer' property to store the file content
