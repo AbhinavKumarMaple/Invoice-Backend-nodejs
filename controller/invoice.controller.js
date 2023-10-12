@@ -8,7 +8,7 @@ const createInvoice = async (req, res) => {
   let createdBy = req.user.employeeId;
   let accountantId = req.user.accountantId;
   let employeeName = "";
-  if (!createdBy) {
+  if (req.user.isAccountant) {
     createdBy = accountantId;
     employeeName = await Accountant.findById(createdBy);
   } else {
@@ -170,15 +170,11 @@ const getInvoiceById = async (req, res) => {
 
 const getAllInvoicesForEmployee = async (req, res) => {
   try {
-    let employeeId = req.user?.employeeId;
-    let id;
+    let employeeId = req.user.employeeId;
     let username = req.query.username; // Get the username query parameter
 
-    if (req.user?.isAccountant == true) {
-      employeeId = req.user?.accountantId;
-      id = req.user.accountantId;
-    } else {
-      id = req.user.employeeId;
+    if (req.user.isAccountant == true) {
+      employeeId = req.user.accountantId;
     }
 
     const page = parseInt(req.query.page) || 1; // Get the page number from query parameters, default to 1 if not provided
@@ -186,14 +182,21 @@ const getAllInvoicesForEmployee = async (req, res) => {
 
     // Calculate the skip value based on the page number and limit
     const skip = (page - 1) * limit;
-    console.log(req.query);
-    // Determine the start and end dates to filter by (default to today's date if not provided)
-    const startDate = req.query.startDate
-      ? new Date(req.query.startDate)
-      : new Date();
-    const endDate = req.query.endDate
-      ? new Date(req.query.endDate)
-      : new Date();
+
+    // Determine the start and end dates to filter by
+    let startDate, endDate;
+
+    if (req.query.startDate) {
+      startDate = new Date(req.query.startDate);
+    } else {
+      startDate = new Date(); // Set to current date if not provided
+    }
+
+    if (req.query.endDate) {
+      endDate = new Date(req.query.endDate);
+    } else {
+      endDate = new Date(); // Set to current date if not provided
+    }
 
     // Calculate the end of the day for the end date
     endDate.setHours(23, 59, 59, 999);
@@ -212,12 +215,22 @@ const getAllInvoicesForEmployee = async (req, res) => {
       .skip(skip) // Skip the specified number of records
       .limit(limit); // Limit the number of records returned
 
-    if (
-      invoices.createdBy == id ||
-      (invoices.createdBy == id && req.user?.isAccountant == true)
-    ) {
-      res.status(200).json(invoices);
+    if (invoices.length === 0) {
+      return res.status(404).json({ message: "No invoices found" });
     }
+
+    // Check ownership for each invoice and create a filtered list
+    const filteredInvoices = invoices.filter(
+      (invoice) => invoice.createdBy == employeeId
+    );
+
+    if (filteredInvoices.length === 0) {
+      return res.status(403).json({
+        message: "You do not have permission to access these invoices",
+      });
+    }
+
+    res.status(200).json(filteredInvoices);
   } catch (error) {
     console.error(error);
     res.status(500).json({
