@@ -6,38 +6,35 @@ const {
 } = require("../middleware"); // Replace with your authentication middleware
 const { accountant } = require("../controller");
 
-var multer = require('multer');
+var multer = require("multer");
 
 var storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, 'upload');
-    },
-    filename: (req, file, cb) => {
-      cb(null, file.fieldname + '-' + Date.now());
-    },
-  });
+  destination: (req, file, cb) => {
+    cb(null, "upload");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.fieldname + "-" + Date.now());
+  },
+});
 
 var upload = multer({ storage: storage });
 
 // Create Accountant
-router.post(
-  "/register",
-  accountant.createAccountant
-);
+router.post("/register", accountant.createAccountant);
 
 // Route for uploading an image for a specific accountant
 router.post(
-  '/upload-image',
+  "/upload-image",
   accountantAuthenticate.verifyToken,
-  upload.single('image'), // Use 'image' as the field name for the uploaded file
+  upload.single("image"), // Use 'image' as the field name for the uploaded file
   accountant.addImageToAccountant
 );
 
-router.delete(
-  '/remove-image/:id',
-  accountantAuthenticate.verifyToken,
-  accountant.removeImageFromAccountant
-);
+// router.delete(
+//   '/remove-image/:id',
+//   accountantAuthenticate.verifyToken,
+//   accountant.removeImageFromAccountant
+// );
 
 // login Accountant
 router.post("/login", accountant.loginAccountant);
@@ -53,7 +50,6 @@ router.get(
   accountantAuthenticate.verifyToken,
   accountant.getAccountantLogos
 );
-
 
 // Delete Accountant
 router.delete(
