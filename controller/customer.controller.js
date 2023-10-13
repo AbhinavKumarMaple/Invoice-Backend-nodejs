@@ -153,7 +153,7 @@ const getAllCustomers = async (req, res) => {
     // Define the filter object based on accountantId and username (if provided)
     const filter = { creator: employeeId };
     if (username) {
-      filter.username = username;
+      filter.name = username;
     }
 console.log(filter)
     // Find customers that match the filter with pagination
