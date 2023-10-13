@@ -82,28 +82,20 @@ const updateCustomer = async (req, res) => {
 const deleteCustomer = async (req, res) => {
   try {
     const customerId = req.params.id; // Extract the customer ID from the request params
-    const { employeeId, accountantId } = req.user; // Extract employeeId and accountantId from req.user
-
+    // const { employeeId, accountantId } = req.user; // Extract employeeId and accountantId from req.user
+if(req.user.isAccountant){
+  id = req.user.accountantId
+}else{
+  id = req.user.employeeId
+}
     // Find the existing customer by ID
-    const existingCustomer = await Customer.findById(customerId);
+    const existingCustomer = await Customer.findOneAndRemove({_id:customerId, creator:id});
 
     // If the customer doesn't exist, return a 404 error
     if (!existingCustomer) {
       return res.status(404).json({ message: "Customer not found." });
     }
 
-    // Check if either employeeId or accountantId matches the creator of the customer
-    if (
-      existingCustomer.creator.toString() !== employeeId &&
-      existingCustomer.creator.toString() !== accountantId
-    ) {
-      return res.status(403).json({
-        message: "Unauthorized: You are not allowed to delete this customer.",
-      });
-    }
-
-    // Delete the customer from the database
-    await existingCustomer.remove();
 
     res.status(200).json({ message: "Customer deleted successfully." });
   } catch (error) {
@@ -113,6 +105,7 @@ const deleteCustomer = async (req, res) => {
       .json({ message: "Server error. Could not delete customer." });
   }
 };
+
 
 // Get Customer by ID
 const getCustomerById = async (req, res) => {
