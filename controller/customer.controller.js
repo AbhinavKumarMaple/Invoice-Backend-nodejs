@@ -41,13 +41,16 @@ const createCustomer = async (req, res) => {
 // Update Customer
 const updateCustomer = async (req, res) => {
   try {
-    const id = req.params.customerId; // Extract the customer ID from the request params
+    let customerId = req.params.customerId;
 
-    const { name, contactNumber, address } = req.body;
-    const { accountantId } = req.user; // Extract employeeId and accountantId from req.user
+    if (req.user.isAccountant) {
+      id = req.user.accountantId;
+    } else {
+      id = req.user.employeeId;
+    }
 
     // Find the existing customer by IDs
-    const existingCustomer = await Customer.findById(id);
+    const existingCustomer = await Customer.findById(customerId);
 
     // If the customer doesn't exist, return a 404 error
     if (!existingCustomer) {
@@ -55,16 +58,14 @@ const updateCustomer = async (req, res) => {
     }
 
     // Check if either employeeId or accountantId matches the creator of the customer
-    if (existingCustomer.creator.toString() !== accountantId) {
+    if (existingCustomer.creator.toString() !== id) {
       return res.status(403).json({
         message: "Unauthorized: You are not allowed to update this customer.",
       });
     }
 
-    // Update the customer data
-    existingCustomer.name = name;
-    existingCustomer.contactNumber = contactNumber;
-    existingCustomer.address = address;
+    // Update the customer data with all fields from the request body
+    Object.assign(existingCustomer, req.body);
 
     // Save the updated customer to the database
     await existingCustomer.save();
@@ -72,11 +73,10 @@ const updateCustomer = async (req, res) => {
     res.status(200).json({ message: "Customer updated successfully." });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ message: "Server error. Could not update customer." });
+    res.status(500).json({ message: "Server error. Could not update customer." });
   }
 };
+
 
 // Delete Customer
 const deleteCustomer = async (req, res) => {
@@ -148,12 +148,12 @@ const getAllCustomers = async (req, res) => {
     if (username) {
       filter.name = username;
     }
-console.log(filter)
+// console.log(filter)
     // Find customers that match the filter with pagination
     const customers = await Customer.find(filter)
       .skip(skip)
       .limit(limit);
-    console.log(customers)
+    // console.log(customers)
     // Count the total number of customers for pagination information
     const totalCustomers = await Customer.countDocuments(filter);
 
