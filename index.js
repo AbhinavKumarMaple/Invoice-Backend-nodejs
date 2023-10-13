@@ -39,7 +39,7 @@ app.use(
     origin: [
       "https://invoice-frontend-tan.vercel.app",
       "http://localhost:4200",
-      frontend-invoive.vercel.app,
+      "https://frontend-invoive.vercel.app",
     ],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
