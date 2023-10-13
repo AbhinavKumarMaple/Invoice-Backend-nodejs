@@ -40,7 +40,7 @@ router.put(
 
 // Delete Customer
 router.delete(
-  "/delete/:customerId",
+  "/delete/:id",
   employeeAuthenticate.verifyToken,
   customer.deleteCustomer
 );
