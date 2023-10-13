@@ -110,13 +110,18 @@ if(req.user.isAccountant){
 // Get Customer by ID
 const getCustomerById = async (req, res) => {
   try {
-    const customerId = req.params.id; // Extract the customer ID from the request params
-    const { accountantId } = req.user; // Extract accountantId from req.user
+    let customerId = req.params.customerId;
+
+    if (req.user.isAccountant) {
+      id = req.user.accountantId;
+    } else {
+      id = req.user.employeeId;
+    }
 
     // Find the customer by both customerId and accountantId
-    const customer = await Customer.findById({
-      customerId,
-    });
+    const customer = await Customer.findById(
+      customerId
+    );
 
     // If the customer is not found or doesn't match the accountantId, return a 404 error
     if (!customer) {
