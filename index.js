@@ -40,6 +40,7 @@ app.use(
       "https://invoice-frontend-tan.vercel.app",
       "http://localhost:4200",
       "https://frontend-invoive.vercel.app",
+      "https://cloud-based-invoice-application.vercel.app/login"
     ],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
