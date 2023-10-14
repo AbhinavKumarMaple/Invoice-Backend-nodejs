@@ -43,6 +43,7 @@ const generatedInvoiceSchema = new mongoose.Schema({
   crn: Number,
   customerName: String,
   createdFor: String,
+  serviceDescription: [{ type: String }],
 });
 
 module.exports = mongoose.model("GeneratedInvoice", generatedInvoiceSchema);
