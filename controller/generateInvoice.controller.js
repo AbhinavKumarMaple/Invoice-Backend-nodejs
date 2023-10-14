@@ -20,6 +20,7 @@ const generateInvoice = async (req, res) => {
       vatRegNo,
       crn,
       logo,
+      createdFor,
     } = req.body;
     let { employeeId, accountantId } = req.user;
     let createdBy;
@@ -49,6 +50,7 @@ const generateInvoice = async (req, res) => {
       logo,
       vatRegNo,
       crn,
+      createdFor,
     });
 
     // Save the generated invoice to the database

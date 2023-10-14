@@ -13,7 +13,7 @@ const generatedInvoiceSchema = new mongoose.Schema({
   totalGross: Number,
   bankAccount: String,
   note: String,
-  createdBy: { type: String, required: false }, 
+  createdBy: { type: String, required: false },
   accountantId: { type: String, required: false },
   banks: [
     {
@@ -35,14 +35,14 @@ const generatedInvoiceSchema = new mongoose.Schema({
     buildingNumber: String,
     postalCode: String,
   }, // [street name, landmark, building name/number, postal code]
-  logo: 
-    {
-      data: Buffer,
-      contentType: String
-    }, // Store the image as binary data
+  logo: {
+    data: Buffer,
+    contentType: String,
+  }, // Store the image as binary data
   vatRegNo: Number,
   crn: Number,
   customerName: String,
+  createdFor: String,
 });
 
 module.exports = mongoose.model("GeneratedInvoice", generatedInvoiceSchema);
