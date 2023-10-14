@@ -172,6 +172,8 @@ const deleteGeneratedInvoice = async (req, res) => {
 const getGeneratedInvoiceByEmployee = async (req, res) => {
   try {
     let employeeId;
+    let username = req.query.username; // Get the username query parameter
+
     if (req.user?.isAccountant == true) {
       employeeId = req.user?.accountantId;
     } else {
@@ -184,10 +186,14 @@ const getGeneratedInvoiceByEmployee = async (req, res) => {
     // Calculate the skip value based on the page number and limit
     const skip = (page - 1) * limit;
 
-    // Find generated invoices associated with the provided employee_id with pagination
-    const generatedInvoices = await GeneratedInvoice.find({
-      createdBy: employeeId,
-    })
+    // Define a filter object based on the provided employeeId and optional username
+    const filter = { createdBy: employeeId };
+    if (username) {
+      filter.customerName = username;
+    }
+
+    // Find generated invoices associated with the filter and pagination
+    const generatedInvoices = await GeneratedInvoice.find(filter)
       .skip(skip) // Skip the specified number of records
       .limit(limit)
       .lean(); // Limit the number of records returned
@@ -205,6 +211,8 @@ const getAllGeneratedInvoiceByEmployeeId = async (req, res) => {
   try {
     let employeeId = req.params.employeeid;
     let id;
+    let username = req.query.username; // Get the username query parameter
+
     if (req.user?.isAccountant == true) {
       id = req.user.accountantId;
     } else {
@@ -217,10 +225,14 @@ const getAllGeneratedInvoiceByEmployeeId = async (req, res) => {
     // Calculate the skip value based on the page number and limit
     const skip = (page - 1) * limit;
 
-    // Find generated invoices associated with the provided employee_id with pagination
-    const generatedInvoices = await GeneratedInvoice.find({
-      createdBy: employeeId,
-    })
+    // Define a filter object based on the provided employeeId and optional username
+    const filter = { createdBy: employeeId };
+    if (username) {
+      filter.username = username;
+    }
+
+    // Find generated invoices associated with the filter and pagination
+    const generatedInvoices = await GeneratedInvoice.find(filter)
       .skip(skip) // Skip the specified number of records
       .limit(limit); // Limit the number of records returned
 
