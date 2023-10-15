@@ -9,6 +9,7 @@ var fs = require("fs");
 const refreshToken = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
+
     // Verify the provided refresh token
     jwt.verify(refreshToken, process.env.SECRET, async (err, user) => {
       if (err) {
@@ -23,6 +24,7 @@ const refreshToken = async (req, res) => {
       }
 
       const employeeId = user.employeeId;
+
       // Find the accountant based on the username (you may use a unique identifier)
       const employee = await Employee.findById(employeeId);
 
@@ -39,6 +41,11 @@ const refreshToken = async (req, res) => {
         }
       );
 
+      // Calculate the expiration time as a Date object
+      const expirationDate = new Date(
+        Date.now() + process.env.TOKENTIME * 1000
+      );
+
       res
         .cookie("token", token, {
           httpOnly: true,
@@ -46,10 +53,13 @@ const refreshToken = async (req, res) => {
           secure: "false",
         })
         .status(200)
-        .json("done");
+        .json({
+          message: "Token will expire on",
+          expirationTime: expirationDate,
+        });
     });
   } catch (error) {
-    console.log("error");
+    console.log(error);
     res
       .status(500)
       .json({ message: "Server error. Could not generate refresh token." });

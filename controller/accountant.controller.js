@@ -9,6 +9,7 @@ var fs = require("fs");
 const refreshToken = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
+
     // Verify the provided refresh token
     jwt.verify(refreshToken, process.env.SECRET, async (err, user) => {
       if (err) {
@@ -22,6 +23,7 @@ const refreshToken = async (req, res) => {
           .json({ message: "Username mismatch in the token." });
       }
       const accountantId = user.accountantId;
+
       // Find the accountant based on the username (you may use a unique identifier)
       const accountant = await Accountant.findById(accountantId);
 
@@ -40,6 +42,11 @@ const refreshToken = async (req, res) => {
         { expiresIn: process.env.TOKENTIME } // Set an appropriate expiration time for the access token
       );
 
+      // Calculate the expiration time as a Date object
+      const expirationDate = new Date(
+        Date.now() + process.env.TOKENTIME * 1000
+      );
+
       res
         .cookie("token", token, {
           httpOnly: true,
@@ -47,7 +54,10 @@ const refreshToken = async (req, res) => {
           secure: "false",
         })
         .status(200)
-        .json("done");
+        .json({
+          message: "Token will expire on",
+          expirationTime: expirationDate,
+        });
     });
   } catch (error) {
     console.log(error);

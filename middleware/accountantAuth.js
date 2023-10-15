@@ -10,7 +10,7 @@ const verifyToken = (req, res, next) => {
   } else {
     jwt.verify(token, process.env.SECRET, (err, user) => {
       if (err) {
-        return res.status(403).json({ message: "Unauthorized: token not " });
+        return res.status(403).json({ message: "Unauthorized token" });
       } else {
         if (user.isAccountant) {
           // Check user type
