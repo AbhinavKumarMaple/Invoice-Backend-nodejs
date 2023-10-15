@@ -278,5 +278,4 @@ module.exports = {
   getGeneratedInvoiceByEmployee,
   getAllGeneratedInvoiceByEmployeeId,
   updateLogoInGeneratedInvoice,
-  // getGeneratedInvoiceByAccountantId,
 };
