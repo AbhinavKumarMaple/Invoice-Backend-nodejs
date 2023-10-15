@@ -177,6 +177,11 @@ const getGeneratedInvoiceByEmployee = async (req, res) => {
   try {
     let employeeId;
     let username = req.query.username; // Get the username query parameter
+    const page = parseInt(req.query.page) || 1; // Get the page number from query parameters, default to 1 if not provided
+    const limit = parseInt(req.query.limit) || 20; // Get the limit (number of records per page) from query parameters, default to 20 if not provided
+
+    // Calculate the skip value based on the page number and limit
+    const skip = (page - 1) * limit;
 
     if (req.user?.isAccountant == true) {
       employeeId = req.user?.accountantId;
@@ -184,14 +189,12 @@ const getGeneratedInvoiceByEmployee = async (req, res) => {
       employeeId = req.user?.employeeId;
     }
 
-    const page = parseInt(req.query.page) || 1; // Get the page number from query parameters, default to 1 if not provided
-    const limit = parseInt(req.query.limit) || 20; // Get the limit (number of records per page) from query parameters, default to 10 if not provided
-
-    // Calculate the skip value based on the page number and limit
-    const skip = (page - 1) * limit;
-
     // Define a filter object based on the provided employeeId and optional username
     const filter = { createdBy: employeeId };
+
+    // Add a date range filter if you have a date field in your model
+    // filter.createdAt = { $gte: startDate, $lte: endDate };
+
     if (username) {
       filter.customerName = username;
     }
@@ -215,7 +218,7 @@ const getAllGeneratedInvoiceByEmployeeId = async (req, res) => {
   try {
     let employeeId = req.params.employeeid;
     let id;
-    let username = req.query.username; // Get the username query parameter
+    let username = req.query.username;
 
     if (req.user?.isAccountant == true) {
       id = req.user.accountantId;
@@ -223,29 +226,31 @@ const getAllGeneratedInvoiceByEmployeeId = async (req, res) => {
       id = req.user.employeeId;
     }
 
-    const page = parseInt(req.query.page) || 1; // Get the page number from query parameters, default to 1 if not provided
-    const limit = parseInt(req.query.limit) || 20; // Get the limit (number of records per page) from query parameters, default to 10 if not provided
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
 
-    // Calculate the skip value based on the page number and limit
     const skip = (page - 1) * limit;
 
-    // Define a filter object based on the provided employeeId and optional username
     const filter = { createdBy: employeeId };
     if (username) {
       filter.username = username;
     }
 
-    // Find generated invoices associated with the filter and pagination
     const generatedInvoices = await GeneratedInvoice.find(filter)
-      .skip(skip) // Skip the specified number of records
-      .limit(limit); // Limit the number of records returned
+      .skip(skip)
+      .limit(limit);
 
-    if (
-      generatedInvoices.createdBy == id ||
-      (generatedInvoices.createdBy == id && req.user?.isAccountant == true)
-    ) {
-      res.status(200).json(generatedInvoices);
-    }
+    const totalGeneratedInvoices = await GeneratedInvoice.countDocuments(
+      filter
+    );
+    const totalPages = Math.ceil(totalGeneratedInvoices / limit);
+
+    res.status(200).json({
+      generatedInvoices,
+      currentPage: page,
+      totalPages,
+      totalGeneratedInvoices,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
