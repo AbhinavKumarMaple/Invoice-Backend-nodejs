@@ -48,7 +48,7 @@ const refreshToken = async (req, res) => {
       const expirationDate = new Date(
         Date.now() + expirationTimeInSeconds * 1000
       );
-
+      // const tokenExpireTime = expirationDate.toLocaleString();
       res
         .cookie("token", token, {
           httpOnly: true,
@@ -283,6 +283,8 @@ const loginAccountant = async (req, res) => {
     const expirationDate = new Date(
       Date.now() + expirationTimeInSeconds * 1000
     );
+    // Set the token expiration time as a human-readable date and time format
+    // const tokenExpireTime = expirationDate.toLocaleString();
 
     // Generate a refresh token
     const refreshToken = jwt.sign(
@@ -306,9 +308,6 @@ const loginAccountant = async (req, res) => {
       ), // 3600000 milliseconds in an hour
     });
 
-    // Set the token expiration time as a human-readable date and time format
-    const tokenExpireTime = expirationDate.toLocaleString();
-
     // Send the access token and its expiration time in the response
     res
       .cookie("token", token, {
@@ -317,7 +316,7 @@ const loginAccountant = async (req, res) => {
         secure: "false",
       })
       .status(200)
-      .json({ message: "done", expirationTime: tokenExpireTime });
+      .json({ message: "done", expirationTime: expirationDate });
   } catch (error) {
     console.error(error);
     res

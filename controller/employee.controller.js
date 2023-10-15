@@ -285,7 +285,7 @@ const loginEmployee = async (req, res) => {
       });
 
       // Set the token expiration time as a human-readable date and time format
-      const tokenExpireTime = expirationDate.toLocaleString();
+      // const tokenExpireTime = expirationDate.toLocaleString();
 
       // Send the access token and its expiration time in the response
       res
@@ -295,7 +295,7 @@ const loginEmployee = async (req, res) => {
           secure: "false",
         })
         .status(200)
-        .json({ message: "done", tokenExpireTime });
+        .json({ message: "done", expirationTime: expirationDate });
     } else {
       const { email, password } = req.body;
 
@@ -349,7 +349,7 @@ const loginEmployee = async (req, res) => {
       });
 
       // Set the token expiration time as a human-readable date and time format
-      const tokenExpireTime = expirationDate.toLocaleString();
+      // const tokenExpireTime = expirationDate.toLocaleString();
 
       // Send the access token and its expiration time in the response
       res
@@ -359,7 +359,7 @@ const loginEmployee = async (req, res) => {
           secure: "false",
         })
         .status(200)
-        .json({ message: "done", tokenExpireTime });
+        .json({ message: "done", expirationTime: expirationDate });
     }
   } catch (error) {
     console.error(error);
