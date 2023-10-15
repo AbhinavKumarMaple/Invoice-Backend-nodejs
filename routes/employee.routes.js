@@ -22,7 +22,7 @@ var upload = multer({ storage: storage });
 // Create Accountant
 router.post(
   "/register",
-  accountantAuthenticate.verifyToken,
+  employeeAuthenticate.verifyToken,
   upload.single("image"),
   employee.createEmployee
 );
@@ -30,14 +30,14 @@ router.post(
 // Route for uploading an image for a specific accountant
 router.post(
   "/upload-image",
-  accountantAuthenticate.verifyToken,
+  employeeAuthenticate.verifyToken,
   upload.single("image"), // Use 'image' as the field name for the uploaded file
   employee.addImageToEmployee
 );
 
 router.delete(
   "/remove-image/:id",
-  accountantAuthenticate.verifyToken,
+  employeeAuthenticate.verifyToken,
   employee.removeImageFromAccountant
 );
 
@@ -46,7 +46,7 @@ router.post("/login", employee.loginEmployee);
 // Update Accountant
 router.put(
   "/update/:id",
-  accountantAuthenticate.verifyToken,
+  employeeAuthenticate.verifyToken,
   employee.updateEmployee
 );
 
@@ -90,21 +90,21 @@ router.get(
 // Get refresh token
 router.post(
   "/addbank",
-  accountantAuthenticate.verifyToken,
+  employeeAuthenticate.verifyToken,
   employee.addBankToEmployee
 );
 
 // Get refresh token
 router.delete(
   "/removebank/:bankId",
-  accountantAuthenticate.verifyToken,
+  employeeAuthenticate.verifyToken,
   employee.removeBankByIdFromEmployee
 );
 
 // Get refresh token
 router.put(
   "/editbank/:bankId",
-  accountantAuthenticate.verifyToken,
+  employeeAuthenticate.verifyToken,
   employee.editBankByIdForEmployee
 );
 
