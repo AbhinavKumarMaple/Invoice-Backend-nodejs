@@ -41,9 +41,12 @@ const refreshToken = async (req, res) => {
         }
       );
 
+      const tokenHours = parseInt(process.env.TOKENTIME); // Token expiration time in hours
+      const expirationTimeInSeconds = tokenHours * 3600; // Convert hours to seconds
+
       // Calculate the expiration time as a Date object
-      const expirationDate = new Date(
-        Date.now() + process.env.TOKENTIME * 1000
+      const tokenExpireTime = new Date(
+        Date.now() + expirationTimeInSeconds * 1000
       );
 
       res
@@ -55,7 +58,7 @@ const refreshToken = async (req, res) => {
         .status(200)
         .json({
           message: "Token will expire on",
-          expirationTime: expirationDate,
+          expirationTime: tokenExpireTime,
         });
     });
   } catch (error) {
@@ -251,6 +254,14 @@ const loginEmployee = async (req, res) => {
         }
       );
 
+      const tokenHours = parseInt(process.env.TOKENTIME); // Token expiration time in hours
+      const expirationTimeInSeconds = tokenHours * 3600; // Convert hours to seconds
+
+      // Calculate the expiration time as a Date object
+      const expirationDate = new Date(
+        Date.now() + expirationTimeInSeconds * 1000
+      );
+
       // Generate a refresh token
       const refreshToken = jwt.sign(
         {
@@ -273,7 +284,10 @@ const loginEmployee = async (req, res) => {
         ), // 3600000 milliseconds in an hour
       });
 
-      // Send the access token in the response
+      // Set the token expiration time as a human-readable date and time format
+      const tokenExpireTime = expirationDate.toLocaleString();
+
+      // Send the access token and its expiration time in the response
       res
         .cookie("token", token, {
           httpOnly: true,
@@ -281,7 +295,7 @@ const loginEmployee = async (req, res) => {
           secure: "false",
         })
         .status(200)
-        .json("done");
+        .json({ message: "done", tokenExpireTime });
     } else {
       const { email, password } = req.body;
 
@@ -307,6 +321,13 @@ const loginEmployee = async (req, res) => {
           expiresIn: process.env.TOKENTIME, // Token expiration time
         }
       );
+      const tokenHours = parseInt(process.env.TOKENTIME); // Token expiration time in hours
+      const expirationTimeInSeconds = tokenHours * 3600; // Convert hours to seconds
+
+      // Calculate the expiration time as a Date object
+      const expirationDate = new Date(
+        Date.now() + expirationTimeInSeconds * 1000
+      );
 
       // Generate a refresh token
       const refreshToken = jwt.sign(
@@ -327,7 +348,10 @@ const loginEmployee = async (req, res) => {
         ), // 3600000 milliseconds in an hour
       });
 
-      // Send the access token in the response
+      // Set the token expiration time as a human-readable date and time format
+      const tokenExpireTime = expirationDate.toLocaleString();
+
+      // Send the access token and its expiration time in the response
       res
         .cookie("token", token, {
           httpOnly: true,
@@ -335,7 +359,7 @@ const loginEmployee = async (req, res) => {
           secure: "false",
         })
         .status(200)
-        .json("done");
+        .json({ message: "done", tokenExpireTime });
     }
   } catch (error) {
     console.error(error);
