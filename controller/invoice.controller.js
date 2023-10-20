@@ -202,8 +202,10 @@ const getAllInvoicesForEmployee = async (req, res) => {
       createdBy: employeeId,
       date: { $gte: startDate, $lte: endDate },
     };
+
     if (username) {
-      filter.username = username;
+      // Use a case-insensitive regular expression to search for the username
+      filter.username = new RegExp(username, "i");
     }
 
     const invoices = await Invoice.find(filter).skip(skip).limit(limit);
@@ -220,10 +222,11 @@ const getAllInvoicesForEmployee = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message: "Server error. Could not get invoices for employee.",
+      message: "Server error. Could not get invoices for the employee.",
     });
   }
 };
+
 
 const getAllInvoicesForAccountant = async (req, res) => {
   try {
@@ -240,35 +243,27 @@ const getAllInvoicesForAccountant = async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
-    // Define the filter object based on accountantId and username (if provided)
     const filter = {
       accountantId: accountantId,
     };
 
-    // Retrieve the date range from the request query parameters
     const startDate = req.query.startDate
       ? new Date(req.query.startDate)
       : null;
     const endDate = req.query.endDate ? new Date(req.query.endDate) : null;
 
-    // If both start and end dates are provided, set up the date filter
     if (startDate && endDate) {
       filter.date = { $gte: startDate, $lte: endDate };
     }
 
-    // Retrieve the username from the query parameters, if provided
     const username = req.query.username;
     if (username) {
-      filter.username = username;
+      // Use a case-insensitive regular expression to search for the username
+      filter.username = new RegExp(username, "i");
     }
 
-    // Find invoices associated with the provided filter and pagination
     const invoices = await Invoice.find(filter).skip(skip).limit(limit);
-
-    // Calculate the total number of invoices for pagination information
     const totalInvoices = await Invoice.countDocuments(filter);
-
-    // Calculate the total number of pages
     const totalPages = Math.ceil(totalInvoices / limit);
 
     res.status(200).json({
@@ -285,27 +280,23 @@ const getAllInvoicesForAccountant = async (req, res) => {
   }
 };
 
+
 const getInvoicesByEmployeeId = async (req, res) => {
   try {
-    const employeeId = req.params.employeeid; // Extract the employee ID from the request parameters
-    const page = parseInt(req.query.page) || 1; // Get the page number from query parameters, default to 1 if not provided
-    const limit = parseInt(req.query.limit) || 10; // Get the limit (number of records per page) from query parameters, default to 10 if not provided
-
-    // Calculate the skip value based on the page number and limit
+    const employeeId = req.params.employeeid;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    // Retrieve the date range from the request query parameters
     const startDate = req.query.startDate
       ? new Date(req.query.startDate)
       : null;
     const endDate = req.query.endDate ? new Date(req.query.endDate) : null;
 
-    // Define the filter object based on createdBy (employeeId) and username (if provided)
     const filter = {
       createdBy: employeeId,
     };
 
-    // Set up the date filter based on the provided date range or today's date
     if (startDate && endDate) {
       filter.date = {
         $gte: startDate,
@@ -313,18 +304,16 @@ const getInvoicesByEmployeeId = async (req, res) => {
       };
     }
 
-    // Retrieve the username from the query parameters, if provided
     const username = req.query.username;
     if (username) {
-      filter.username = username;
+      // Use a case-insensitive regular expression to search for the username
+      filter.username = new RegExp(username, "i");
     }
 
-    // Query the database to find invoices associated with the employee, date range, and pagination
     const invoices = await Invoice.find(filter)
-      .skip(skip) // Skip the specified number of records
-      .limit(limit); // Limit the number of records returned
+      .skip(skip)
+      .limit(limit);
 
-    // Check if the requesting user has permission to access these invoices
     if (
       invoices.some(
         (invoice) =>
@@ -332,19 +321,15 @@ const getInvoicesByEmployeeId = async (req, res) => {
           req.user?.isAccountant === true
       )
     ) {
-      // Send the list of invoices in the response
       res.status(200).json(invoices);
     } else {
-      // Return a 403 Forbidden status if the user doesn't have permission
       res
         .status(403)
         .json({ message: "Unauthorized: You cannot access these invoices." });
     }
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ message: "Server error. Could not fetch invoices." });
+    res.status(500).json({ message: "Server error. Could not fetch invoices." });
   }
 };
 

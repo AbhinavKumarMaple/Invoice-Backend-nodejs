@@ -140,33 +140,28 @@ const getCustomerById = async (req, res) => {
 
 const getAllCustomers = async (req, res) => {
   try {
-    const { employeeId } = req.user; // Extract accountantId from req.user
-    const page = parseInt(req.query.page) || 1; // Current page (default to 1)
-    const limit = parseInt(req.query.limit) || 10; // Number of items per page (default to 10)
+    const { employeeId } = req.user;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
 
-    // Calculate the skip value based on the current page and limit
     const skip = (page - 1) * limit;
 
-    // Retrieve the username from the query parameters, if provided
     const username = req.query.username;
-    // Define the filter object based on accountantId and username (if provided)
+
     const filter = { creator: employeeId };
+
     if (username) {
-      filter.name = username;
+      // Use a case-insensitive regular expression to search for the username
+      filter.name = new RegExp(username, "i");
     }
-// console.log(filter)
-    // Find customers that match the filter with pagination
+
     const customers = await Customer.find(filter)
       .skip(skip)
       .limit(limit);
-    // console.log(customers)
-    // Count the total number of customers for pagination information
-    const totalCustomers = await Customer.countDocuments(filter);
 
-    // Calculate the total number of pages
+    const totalCustomers = await Customer.countDocuments(filter);
     const totalPages = Math.ceil(totalCustomers / limit);
 
-    // Send a JSON response with the array of customer details and pagination information
     res.status(200).json({
       customers,
       currentPage: page,
@@ -178,6 +173,7 @@ const getAllCustomers = async (req, res) => {
     res.status(500).json({ message: "Server error. Could not get customers." });
   }
 };
+
 
 
 const addBankToCustomer = async (req, res) => {

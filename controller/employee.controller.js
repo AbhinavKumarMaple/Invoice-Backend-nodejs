@@ -477,7 +477,8 @@ const getAllEmployeesByAccountantId = async (req, res) => {
 
     const filter = { accountantId: accountantId };
     if (username) {
-      filter.username = username;
+      // Use a case-insensitive regular expression to search for the username
+      filter.username = new RegExp(username, "i");
     }
 
     const employees = await Employee.find(filter)
@@ -499,6 +500,8 @@ const getAllEmployeesByAccountantId = async (req, res) => {
     res.status(500).json({ message: "Server error. Could not get employees." });
   }
 };
+
+
 
 // Function to get all bank information objects for an accountant
 const getAllBanksForAccountant = async (req, res) => {

@@ -176,11 +176,9 @@ const deleteGeneratedInvoice = async (req, res) => {
 const getGeneratedInvoiceByEmployee = async (req, res) => {
   try {
     let employeeId;
-    let username = req.query.username; // Get the username query parameter
-    const page = parseInt(req.query.page) || 1; // Get the page number from query parameters, default to 1 if not provided
-    const limit = parseInt(req.query.limit) || 20; // Get the limit (number of records per page) from query parameters, default to 20 if not provided
-
-    // Calculate the skip value based on the page number and limit
+    let username = req.query.username;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
     if (req.user?.isAccountant == true) {
@@ -189,21 +187,17 @@ const getGeneratedInvoiceByEmployee = async (req, res) => {
       employeeId = req.user?.employeeId;
     }
 
-    // Define a filter object based on the provided employeeId and optional username
     const filter = { createdBy: employeeId };
 
-    // Add a date range filter if you have a date field in your model
-    // filter.createdAt = { $gte: startDate, $lte: endDate };
-
     if (username) {
-      filter.customerName = username;
+      // Use a case-insensitive regular expression to search for the username
+      filter.customerName = new RegExp(username, "i");
     }
 
-    // Find generated invoices associated with the filter and pagination
     const generatedInvoices = await GeneratedInvoice.find(filter)
-      .skip(skip) // Skip the specified number of records
+      .skip(skip)
       .limit(limit)
-      .lean(); // Limit the number of records returned
+      .lean();
 
     res.status(200).json(generatedInvoices);
   } catch (error) {
@@ -213,6 +207,7 @@ const getGeneratedInvoiceByEmployee = async (req, res) => {
     });
   }
 };
+
 
 const getAllGeneratedInvoiceByEmployeeId = async (req, res) => {
   try {
@@ -233,7 +228,8 @@ const getAllGeneratedInvoiceByEmployeeId = async (req, res) => {
 
     const filter = { createdBy: employeeId };
     if (username) {
-      filter.username = username;
+      // Use a case-insensitive regular expression to search for the username
+      filter.username = new RegExp(username, "i");
     }
 
     const generatedInvoices = await GeneratedInvoice.find(filter)
@@ -258,6 +254,7 @@ const getAllGeneratedInvoiceByEmployeeId = async (req, res) => {
     });
   }
 };
+
 
 // Get Generated Invoice by Accountant ID
 // const getGeneratedInvoiceByAccountantId = async (req, res) => {
