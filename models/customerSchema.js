@@ -5,10 +5,10 @@ const customerSchema = new mongoose.Schema({
   contactNumber: Number,
   address: {
     address: String,
-    landmark: String,
     streetLane: String,
     postalCode: String,
   },
+  address2:String,
   banks: [
     {
       bankName: { type: String, required: true },

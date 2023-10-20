@@ -72,18 +72,7 @@ const refreshToken = async (req, res) => {
 // Create Accountant function (your existing code)
 const createAccountant = async (req, res) => {
   try {
-    const {
-      name,
-      businessName,
-      contactNumber,
-      address,
-      vatNumber,
-      crnNumber,
-      banks,
-      username,
-      email,
-      password,
-    } = req.body; // Use req.body to access JSON data
+    const { username, email, password } = req.body; // These are the required fields
 
     // Check if the accountant with the same username or email already exists
     const existingAccountant = await Accountant.findOne({
@@ -101,16 +90,18 @@ const createAccountant = async (req, res) => {
 
     // Create a new accountant instance
     const accountant = new Accountant({
-      name,
-      businessName,
-      contactNumber,
-      address,
-      vatNumber,
-      crnNumber,
-      banks,
       username,
       email,
       password: hashedPassword,
+      // These fields are optional and will only be set if they are in the request
+      name: req.body.name,
+      businessName: req.body.businessName,
+      contactNumber: req.body.contactNumber,
+      address: req.body.address,
+      address2: req.body.address2,
+      vatNumber: req.body.vatNumber,
+      crnNumber: req.body.crnNumber,
+      banks: req.body.banks,
     });
 
     // Save the accountant to the database
@@ -124,6 +115,7 @@ const createAccountant = async (req, res) => {
       .json({ message: "Server error. Could not create accountant." });
   }
 };
+
 
 const addImageToAccountant = async (req, res) => {
   try {

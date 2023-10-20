@@ -6,10 +6,10 @@ const employeeSchema = new mongoose.Schema({
   contactNumber: Number,
   address: {
     streetName: String,
-    landmark: String,
     buildingNameNumber: String,
     postalCode: String,
   },
+  address2:String,
   vatNumber: Number,
   crnNumber: Number,
   banks: [
