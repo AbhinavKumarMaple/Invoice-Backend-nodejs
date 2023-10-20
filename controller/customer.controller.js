@@ -152,7 +152,7 @@ const getAllCustomers = async (req, res) => {
 
     if (username) {
       // Use a case-insensitive regular expression to search for the username
-      filter.name = new RegExp(username, "i");
+      filter.user = new RegExp(username, "i");
     }
 
     const customers = await Customer.find(filter)

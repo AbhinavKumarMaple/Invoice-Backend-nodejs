@@ -205,7 +205,7 @@ const getAllInvoicesForEmployee = async (req, res) => {
 
     if (username) {
       // Use a case-insensitive regular expression to search for the username
-      filter.username = new RegExp(username, "i");
+      filter.customerName = new RegExp(username, "i");
     }
 
     const invoices = await Invoice.find(filter).skip(skip).limit(limit);
@@ -259,7 +259,7 @@ const getAllInvoicesForAccountant = async (req, res) => {
     const username = req.query.username;
     if (username) {
       // Use a case-insensitive regular expression to search for the username
-      filter.username = new RegExp(username, "i");
+      filter.customerName = new RegExp(username, "i");
     }
 
     const invoices = await Invoice.find(filter).skip(skip).limit(limit);
@@ -307,7 +307,7 @@ const getInvoicesByEmployeeId = async (req, res) => {
     const username = req.query.username;
     if (username) {
       // Use a case-insensitive regular expression to search for the username
-      filter.username = new RegExp(username, "i");
+      filter.customerName = new RegExp(username, "i");
     }
 
     const invoices = await Invoice.find(filter)
