@@ -71,22 +71,13 @@ const refreshToken = async (req, res) => {
 
 const createEmployee = async (req, res) => {
   try {
-    const {
-      contactNumber,
-      username,
-      email,
-      password,
-      businessName,
-      address,
-      vatNumber,
-      crnNumber,
-      banks,
-    } = req.body;
+    const { username, email, password } = req.body; // These are the required fields
     const accountantId = req.user.accountantId;
 
     if (!req.file || req.file.length === 0) {
       return res.status(400).send("No images uploaded.");
     }
+
     // Check if the accountant with the specified accountantId exists
     const existingAccountant = await Accountant.findById(accountantId);
 
@@ -119,17 +110,19 @@ const createEmployee = async (req, res) => {
     // Create a new employee instance
     const employee = new Employee({
       accountantId,
-      businessName,
-      contactNumber,
-      address,
-      vatNumber,
-      crnNumber,
-      banks,
       username,
       email,
-      logo,
       password: hashedPassword,
+      // These fields are optional and will only be set if they are in the request
+      businessName: req.body.businessName,
+      contactNumber: req.body.contactNumber,
+      address: req.body.address,
+      vatNumber: req.body.vatNumber,
+      crnNumber: req.body.crnNumber,
+      banks: req.body.banks,
+      logo, // Assuming this is the logo field, and it's optional
     });
+
     fs.unlinkSync(req.file.path);
 
     // Save the employee to the database
@@ -143,6 +136,7 @@ const createEmployee = async (req, res) => {
       .json({ message: "Server error. Could not create employee." });
   }
 };
+
 
 const addImageToEmployee = async (req, res) => {
   try {

@@ -10,7 +10,7 @@ const createCustomer = async (req, res) => {
     creator = accountantId;
   }
   try {
-    const { name, id, contactNumber, address, banks } = req.body;
+    const { name, id, contactNumber, address,address2, banks } = req.body;
     const existingCustomer = await Customer.findOne({ name });
     if (existingCustomer) {
       return res.json({ message: "Customer already exists with that name" });
@@ -21,6 +21,7 @@ const createCustomer = async (req, res) => {
       id, // Consider generating UUID here if not provided in the request
       contactNumber,
       address,
+      address2,
       banks,
       creator,
       accountantId,
