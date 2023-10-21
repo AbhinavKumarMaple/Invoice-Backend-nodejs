@@ -108,7 +108,7 @@ const updateLogoInGeneratedInvoice = async (req, res) => {
     const { id } = req.body;
     const logo = req.file; // Assuming you are using multer for file upload
 
-    console.log(req.file);
+    // console.log(req.file);
 
     // Find the generated invoice by ID
     const generatedInvoiceToUpdate = await GeneratedInvoice.findById(id);
@@ -139,7 +139,7 @@ const deleteGeneratedInvoice = async (req, res) => {
   try {
     const invoiceId = req.params.id;
     let { employeeId, accountantId } = req.user;
-    if (req.user?.isAccountant == true) {
+    if (req.user.isAccountant == true) {
       employeeId == accountantId;
     }
 
@@ -199,7 +199,17 @@ const getGeneratedInvoiceByEmployee = async (req, res) => {
       .limit(limit)
       .lean();
 
-    res.status(200).json(generatedInvoices);
+    const totalEmployees = await GeneratedInvoice.countDocuments(filter);
+    const totalPages = Math.ceil(totalEmployees / limit);
+
+    res
+      .status(200)
+      .json({
+        generatedInvoices,
+        currentPage: page,
+        totalPages,
+        totalEmployees,
+      });
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -207,7 +217,6 @@ const getGeneratedInvoiceByEmployee = async (req, res) => {
     });
   }
 };
-
 
 const getAllGeneratedInvoiceByEmployeeId = async (req, res) => {
   try {
@@ -254,7 +263,6 @@ const getAllGeneratedInvoiceByEmployeeId = async (req, res) => {
     });
   }
 };
-
 
 // Get Generated Invoice by Accountant ID
 // const getGeneratedInvoiceByAccountantId = async (req, res) => {
