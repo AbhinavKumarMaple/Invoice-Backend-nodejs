@@ -139,10 +139,9 @@ const deleteGeneratedInvoice = async (req, res) => {
   try {
     const invoiceId = req.params.id;
     let { employeeId, accountantId } = req.user;
-    if (req.user.isAccountant == true) {
-      employeeId == accountantId;
+    if (req.user.isAccountant === true) {
+      employeeId = accountantId;
     }
-
     //check for valid creator
     const GeneratedInvoiceDetail = await GeneratedInvoice.findById(invoiceId);
 
@@ -150,7 +149,7 @@ const deleteGeneratedInvoice = async (req, res) => {
     if (
       GeneratedInvoiceDetail.createdBy == employeeId ||
       (GeneratedInvoiceDetail.createdBy == employeeId &&
-        req.user?.isAccountant == true)
+        req.user.isAccountant == true)
     ) {
       const deletedGeneratedInvoice = await GeneratedInvoice.findByIdAndRemove(
         invoiceId
@@ -160,6 +159,8 @@ const deleteGeneratedInvoice = async (req, res) => {
           .status(404)
           .json({ message: "Generated invoice not found." });
       }
+    } else {
+      return res.status(500).json({ message: "could not delete" });
     }
 
     res
@@ -202,14 +203,12 @@ const getGeneratedInvoiceByEmployee = async (req, res) => {
     const totalEmployees = await GeneratedInvoice.countDocuments(filter);
     const totalPages = Math.ceil(totalEmployees / limit);
 
-    res
-      .status(200)
-      .json({
-        generatedInvoices,
-        currentPage: page,
-        totalPages,
-        totalEmployees,
-      });
+    res.status(200).json({
+      generatedInvoices,
+      currentPage: page,
+      totalPages,
+      totalEmployees,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
