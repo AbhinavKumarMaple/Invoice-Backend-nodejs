@@ -6,7 +6,7 @@ const customerSchema = new mongoose.Schema({
   address: {
     address: String,
     streetLane: String,
-    postalCode: String,
+    postalCode: { type: String, match: /^[0-9a-zA-Z]+$/ }, // Alphanumeric postal code
   },
   address2:String,
   banks: [

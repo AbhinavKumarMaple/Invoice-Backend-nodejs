@@ -7,7 +7,7 @@ const accountantSchema = new mongoose.Schema({
   address: {
     streetName: String,
     buildingNameNumber: String,
-    postalCode: String,
+    postalCode: { type: String, match: /^[0-9a-zA-Z]+$/ }, // Alphanumeric postal code
   },
   address2:String
   ,
@@ -24,8 +24,9 @@ const accountantSchema = new mongoose.Schema({
   logo: [
     {
       data: Buffer,
-      contentType: String
-    }],
+      contentType: String,
+    },
+  ],
   username: { type: String, unique: true },
   email: { type: String, unique: true },
   password: String,

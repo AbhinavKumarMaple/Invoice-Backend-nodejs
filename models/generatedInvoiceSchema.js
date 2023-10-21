@@ -27,13 +27,13 @@ const generatedInvoiceSchema = new mongoose.Schema({
     address: String,
     landmark: String,
     street: String,
-    postalCode: String,
+    postalCode: { type: String, match: /^[0-9a-zA-Z]+$/ }, // Alphanumeric postal code
   },
   accountantAddress: {
     streetName: String,
     landMark: String,
     buildingNumber: String,
-    postalCode: String,
+    postalCode: { type: String, match: /^[0-9a-zA-Z]+$/ }, // Alphanumeric postal code
   }, // [street name, landmark, building name/number, postal code]
   logo: {
     data: Buffer,
