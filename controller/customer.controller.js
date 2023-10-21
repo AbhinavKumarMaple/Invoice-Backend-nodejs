@@ -3,7 +3,7 @@ const Customer = require("../models/customerSchema");
 // Create Customer
 const createCustomer = async (req, res) => {
   const { employeeId, accountantId } = req.user;
-  console.log(employeeId)
+  // console.log(employeeId)
   if ("this is employee" + employeeId) {
     creator = employeeId;
   } else {
@@ -193,7 +193,7 @@ const addBankToCustomer = async (req, res) => {
     // Add the new bank info to the existing banks
     existingBanks.push(newBank);
 
-    console.log(existingBanks);
+    // console.log(existingBanks);
 
     // Update the customer object with the modified banks
     customer.banks = existingBanks;

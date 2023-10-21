@@ -7,7 +7,7 @@ const getAllServiceDescriptionsByEmployeeId = async (req, res) => {
     if (req.user?.isAccountant == true) {
       employeeId = req.user.accountantId;
     }
-    console.log(employeeId);
+    // console.log(employeeId);
     // Find all service descriptions associated with the provided employee_id
     const serviceDescriptions = await ServiceDescription.find({
       employeeId: employeeId,

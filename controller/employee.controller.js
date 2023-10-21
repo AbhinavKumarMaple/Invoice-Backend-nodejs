@@ -62,7 +62,7 @@ const refreshToken = async (req, res) => {
         });
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res
       .status(500)
       .json({ message: "Server error. Could not generate refresh token." });
@@ -136,7 +136,6 @@ const createEmployee = async (req, res) => {
       .json({ message: "Server error. Could not create employee." });
   }
 };
-
 
 const addImageToEmployee = async (req, res) => {
   try {
@@ -500,8 +499,6 @@ const getAllEmployeesByAccountantId = async (req, res) => {
     res.status(500).json({ message: "Server error. Could not get employees." });
   }
 };
-
-
 
 // Function to get all bank information objects for an accountant
 const getAllBanksForAccountant = async (req, res) => {

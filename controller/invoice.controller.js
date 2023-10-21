@@ -103,7 +103,7 @@ const updateInvoiceById = async (req, res) => {
     if (!invoice) {
       return res.status(404).json({ message: "Invoice not found. first" });
     }
-    console.log(invoice.createdBy);
+    // console.log(invoice.createdBy);
     // Check if the invoice was created by the employee, accountant, or if the user is an admin
     if (
       invoice.createdBy === req.user.employeeId ||
@@ -227,7 +227,6 @@ const getAllInvoicesForEmployee = async (req, res) => {
   }
 };
 
-
 const getAllInvoicesForAccountant = async (req, res) => {
   try {
     const accountantId = req.user.accountantId;
@@ -280,7 +279,6 @@ const getAllInvoicesForAccountant = async (req, res) => {
   }
 };
 
-
 const getInvoicesByEmployeeId = async (req, res) => {
   try {
     const employeeId = req.params.employeeid;
@@ -310,9 +308,7 @@ const getInvoicesByEmployeeId = async (req, res) => {
       filter.customerName = new RegExp(username, "i");
     }
 
-    const invoices = await Invoice.find(filter)
-      .skip(skip)
-      .limit(limit);
+    const invoices = await Invoice.find(filter).skip(skip).limit(limit);
 
     if (
       invoices.some(
@@ -329,7 +325,9 @@ const getInvoicesByEmployeeId = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error. Could not fetch invoices." });
+    res
+      .status(500)
+      .json({ message: "Server error. Could not fetch invoices." });
   }
 };
 

@@ -3,7 +3,7 @@ const VatRate = require("../models/vatRateSchema");
 // Get All VAT Rates by Employee ID
 const getAllVatRatesByEmployeeId = async (req, res) => {
   try {
-    console.log(req.user);
+    // console.log(req.user);
     let employeeId = req.user.employeeId;
     if (!employeeId) {
       employeeId = req.user.accountantId;
@@ -12,7 +12,7 @@ const getAllVatRatesByEmployeeId = async (req, res) => {
     if (!employeeId) return res.status(500).json({ message: "require id" });
     // Find all VAT rates associated with the provided employee_id
     const vatRates = await VatRate.find({ employeeId: employeeId });
-    console.log(vatRates);
+    // console.log(vatRates);
     res.status(200).json(vatRates);
   } catch (error) {
     console.error(error);
@@ -77,7 +77,7 @@ const updateVatRate = async (req, res) => {
       employeeId = accountantId;
     }
     let varRate = await VatRate.findById(vatRateId);
-    console.log(varRate);
+    // console.log(varRate);
     if (varRate.employeeId != employeeId)
       return res.status(404).json({ message: "not auth." });
 
@@ -110,7 +110,7 @@ const deleteVatRate = async (req, res) => {
       employeeId = req.user.accountantId;
     }
     let varRate = await VatRate.findById(vatRateId);
-    console.log(varRate);
+    // console.log(varRate);
     if (varRate.employeeId != employeeId)
       return res.status(404).json({ message: "not auth." });
 

@@ -62,7 +62,7 @@ const refreshToken = async (req, res) => {
         });
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res
       .status(500)
       .json({ message: "Server error. Could not generate refresh token." });
@@ -115,7 +115,6 @@ const createAccountant = async (req, res) => {
       .json({ message: "Server error. Could not create accountant." });
   }
 };
-
 
 const addImageToAccountant = async (req, res) => {
   try {
