@@ -94,14 +94,14 @@ const createEmployee = async (req, res) => {
         message: "Employee already exists with this username or email.",
       });
     }
-let logo=""
+    let logo = ""
     if (!req.file || req.file.length === 0) {
-    logo = {
-      data: fs.readFileSync(req.file.path), // Use the 'buffer' property to store the file content
-      contentType: req.file.mimetype,
-    };
-    }else{
-       logo = ""
+      logo = {
+        data: fs.readFileSync(req.file.path), // Use the 'buffer' property to store the file content
+        contentType: req.file.mimetype,
+      };
+    } else {
+      logo = ""
     }
     // Process and add the uploaded image(s) to the accountant's 'img' field
 
