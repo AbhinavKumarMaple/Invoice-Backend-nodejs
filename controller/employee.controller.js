@@ -74,10 +74,6 @@ const createEmployee = async (req, res) => {
     const { username, email, password } = req.body; // These are the required fields
     const accountantId = req.user.accountantId;
 
-    // if (!req.file || req.file.length === 0) {
-    //   return res.status(400).send("No images uploaded.");
-    // }
-
     // Check if the accountant with the specified accountantId exists
     const existingAccountant = await Accountant.findById(accountantId);
 
@@ -86,6 +82,7 @@ const createEmployee = async (req, res) => {
         message: "Accountant not found with the provided accountantId.",
       });
     }
+
 
     // Check if the employee with the same username or email already exists
     const existingEmployee = await Employee.findOne({
@@ -98,11 +95,16 @@ const createEmployee = async (req, res) => {
       });
     }
 
-    // Process and add the uploaded image(s) to the accountant's 'img' field
+    if (!req.file || req.file.length === 0) {
+      return res.status(400).send("No images uploaded.");
     const logo = {
       data: fs.readFileSync(req.file.path), // Use the 'buffer' property to store the file content
       contentType: req.file.mimetype,
     };
+    }else{
+      let logo = ""
+    }
+    // Process and add the uploaded image(s) to the accountant's 'img' field
 
     // Hash the password before saving it
     const hashedPassword = await bcrypt.hash(password, 10);
