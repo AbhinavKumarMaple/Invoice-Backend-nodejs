@@ -74,9 +74,9 @@ const createEmployee = async (req, res) => {
     const { username, email, password } = req.body; // These are the required fields
     const accountantId = req.user.accountantId;
 
-    if (!req.file || req.file.length === 0) {
-      return res.status(400).send("No images uploaded.");
-    }
+    // if (!req.file || req.file.length === 0) {
+    //   return res.status(400).send("No images uploaded.");
+    // }
 
     // Check if the accountant with the specified accountantId exists
     const existingAccountant = await Accountant.findById(accountantId);
